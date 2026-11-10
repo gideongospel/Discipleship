@@ -26,7 +26,7 @@ export async function createUserProfile(
     role,
     status: 'active', // admin-provisioned accounts are active immediately — no approval step
     createdAt: serverTimestamp() as any,
-    createdBy,
+    ...(createdBy !== undefined ? { createdBy } : {}),
   }
   await setDoc(doc(db, 'users', uid), profile)
   return { ...profile, uid }
