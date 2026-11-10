@@ -22,6 +22,12 @@ A PWA for churches to manage evangelism, follow-up, discipleship, attendance, an
 - Disciple CRUD, evangelism log, follow-up tracker, attendance tracking — unchanged
   from before, still shared across assigned workers
 - CSV export, light/dark mode, responsive layout, PWA offline persistence — unchanged
+- **Reports & Analytics page** (`/reports`): spiritual status distribution, evangelism
+  receptivity and outcomes, follow-up status breakdown, average attendance by service
+  type, and a 12-session attendance trend — all via `recharts`
+- **Top-level error boundary**: catches unexpected render crashes anywhere in the app
+  and shows a "Reload" screen instead of a blank white page. Doesn't catch async
+  errors (network failures, etc.) — those are handled locally where they happen.
 
 ### Why not PIN-only (no Worker ID)?
 
@@ -51,10 +57,67 @@ view, but:
   normal use; if one worker is ever assigned to more than ~500 disciples/follow-ups,
   this needs to be chunked — not done here.
 
+## Google Calendar sync (built, but read this before enabling it)
+
+Each worker can connect their **own personal** Google Calendar from Settings. When
+scheduling a follow-up, they can check "Add to my Google Calendar" and it creates an
+all-day event with a 1-hour-before reminder on their primary calendar.
+
+**Why it works this way — no shared church calendar, no backend:**
+Firebase's client SDK (and this app's Netlify-only, no-backend hosting) can't securely
+store a long-lived Google refresh token or act as a shared church-wide calendar
+service — that requires a server holding credentials, which costs money and adds
+infrastructure. Instead, each worker authorizes their own Google account directly in
+the browser (Google Identity Services), gets a short-lived access token (~1 hour, no
+refresh token), and events go to *their own* calendar. Trade-offs that come with this:
+
+- **No shared/admin calendar.** There's no single church calendar every follow-up
+  lands on — it's each worker's personal Google Calendar, one at a time.
+- **Reconnect roughly hourly, and on every fresh page load.** The access token lives
+  in memory only (`GoogleCalendarContext`) and is lost on refresh — there's nowhere
+  safe to persist it without a backend. This is not a bug; it's the actual limit of a
+  no-backend OAuth flow.
+- **"Testing" mode caps you at 100 connected Google accounts**, and each one has to be
+  added by email in Google Cloud Console → OAuth consent screen → Test users. Fine for
+  a church team; if you outgrow it, Google's app-verification review is a separate
+  process, not something turned on with a setting.
+
+**Isolation — how a Calendar glitch can't break the rest of the app:**
+- The follow-up is always saved to Firestore *first*. Calendar sync is a separate,
+  best-effort step that runs after — if it fails, the follow-up you scheduled is
+  already safely saved, and you just see a small warning message.
+- `googleCalendarService.ts` never throws into app-level code uncaught — every
+  function either resolves or throws a plain `Error`, and both call sites
+  (`GoogleCalendarContext` and `FollowUpTracker`) catch it locally.
+- A top-level `ErrorBoundary` (`src/components/ErrorBoundary.tsx`) wraps the whole app
+  as a last-resort net — if any component crashes unexpectedly (from this feature or
+  otherwise), you get a "Reload" screen instead of a blank white page, and your data
+  isn't affected since it already lives in Firestore, not component state.
+
+### Google Calendar setup steps
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com), create a
+   project (or reuse one).
+2. **APIs & Services → Library** → search "Google Calendar API" → Enable.
+3. **APIs & Services → OAuth consent screen**:
+   - User type: External
+   - Publishing status: leave as **Testing** (free, no review, 100-user cap)
+   - Add the Calendar scope: `.../auth/calendar.events`
+   - Under **Test users**, add the email of every worker who'll use this feature
+     (their personal Gmail/Google account — not their Discipleship Tracker Worker ID)
+4. **APIs & Services → Credentials → Create Credentials → OAuth client ID**:
+   - Application type: **Web application**
+   - Authorized JavaScript origins: add your Netlify URL (e.g.
+     `https://your-site.netlify.app`) and `http://localhost:5173` for local dev
+   - No redirect URI needed for this flow
+   - Copy the generated **Client ID**
+5. Add it to Netlify: **Site settings → Environment variables** →
+   `VITE_GOOGLE_CLIENT_ID` = the client ID from step 4. Redeploy.
+6. If you never set this variable, the feature simply doesn't appear as broken — the
+   Connect button shows a clear "not configured" message instead of failing silently.
+
 ## Deferred (per your instruction — not built)
 
-- **Google Calendar sync** — needs an OAuth consent screen + server-side token
-  storage/refresh. Not a client-only feature.
 - **Bulk / scheduled email** — needs Cloud Functions on the Blaze (paid) plan plus a
   scheduler. EmailJS (client-side) only works for single transactional sends.
 
@@ -75,8 +138,9 @@ view, but:
    If two workers routinely edit the same disciples, budget for building real conflict
    handling (field-level version checks, or a "pending changes" queue) before relying on
    this in production.
-5. **Bundle size**: ~968 KB minified, mostly Firebase SDK. Works fine, but if load time
-   on slow connections matters, this needs code-splitting (dynamic imports per route).
+5. **Bundle size**: ~1.37 MB minified (grew from ~968 KB after adding `recharts` for
+   the analytics charts). Works fine, but if load time on slow connections matters,
+   this needs code-splitting (dynamic imports per route) — not done.
 6. **Approval email**: no longer applicable — accounts are created directly by the
    admin with no approval step, so there's nothing to email. If you want the admin to
    be notified when a worker's PIN is reset, that's a new feature, not something
@@ -133,3 +197,17 @@ npm run dev
   That means role changes take effect immediately (no token refresh needed) but every
   rule check does a `get()` on the user doc — fine at hundreds of users, worth revisiting
   with custom claims if you scale to tens of thousands of concurrent rule evaluations.
+
+## Visual identity (The Supernatural Arena)
+
+- **Palette**: warm ink-black and bone-white taken from the logo, with one gold accent
+  (the light through the doors). The Tailwind `slate` scale is deliberately re-tinted warm
+  in `src/index.css` (`@theme`), so any new screen inherits the brand automatically.
+- **Type**: Montserrat (headings, echoing the logo's geometric wordmark) + Figtree (body),
+  both bundled locally via `@fontsource-variable` so they work offline in the PWA.
+- **Dark by default** (first visit); the toggle persists the choice.
+- **Brand components**: `src/components/brand/` — `DoorsMark` (the doors slide open on the
+  login screen), `Wordmark` (live-text logo lockup), `AuthShell` (login/setup stage).
+- **Command palette**: Ctrl/Cmd + K searches disciples (name, phone, location) and jumps to any screen.
+- **Notifications bell**: live list of follow-ups that are overdue or due within 3 days.
+- The login tagline ("Every disciple known. Every follow-up kept.") lives in `AuthShell.tsx` — edit freely.

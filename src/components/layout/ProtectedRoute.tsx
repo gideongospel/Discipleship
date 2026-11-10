@@ -26,7 +26,7 @@ export function RequireRole({ roles }: { roles: UserRole[] }) {
 export function FullScreenLoader() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
     </div>
   )
 }

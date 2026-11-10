@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { isSystemInitialized } from '../../services/loginService'
+import AuthShell from '../../components/brand/AuthShell'
 
 interface FormValues {
   loginId: string
@@ -44,58 +45,59 @@ export default function Login() {
   if (checkingSetup) return null
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
-      <div className="card w-full max-w-sm p-6">
-        <h1 className="mb-1 text-xl font-semibold">Sign in</h1>
-        <p className="mb-6 text-sm text-slate-500">Enter the Worker ID and PIN your administrator gave you.</p>
+    <AuthShell>
+      <p className="eyebrow mb-2">Sign in</p>
+      <h1 className="page-title mb-2">Welcome back.</h1>
+      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+        Enter the Worker ID and PIN your administrator gave you.
+      </p>
 
-        {location.state?.blocked && (
-          <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
-            Your account has been {location.state.blocked}. Contact an administrator.
-          </p>
-        )}
-        {error && (
-          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400">
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="label">Worker ID</label>
-            <input
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={4}
-              className="input text-center text-lg tracking-widest"
-              placeholder="0000"
-              {...register('loginId', { required: 'Worker ID is required' })}
-            />
-            {errors.loginId && <p className="mt-1 text-xs text-red-600">{errors.loginId.message}</p>}
-          </div>
-          <div>
-            <label className="label">PIN</label>
-            <input
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={6}
-              className="input text-center text-lg tracking-widest"
-              placeholder="••••••"
-              {...register('pin', { required: 'PIN is required' })}
-            />
-            {errors.pin && <p className="mt-1 text-xs text-red-600">{errors.pin.message}</p>}
-          </div>
-          <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-xs text-slate-500">
-          Forgot your Worker ID or PIN? Ask an administrator to look it up or reset it for you.
+      {location.state?.blocked && (
+        <p className="mb-5 rounded-xl border border-gold-500/30 bg-gold-500/10 px-3.5 py-2.5 text-sm text-gold-700 dark:text-gold-300">
+          Your account has been {location.state.blocked}. Contact an administrator.
         </p>
-      </div>
-    </div>
+      )}
+      {error && (
+        <p className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-sm text-rose-700 dark:text-rose-300">
+          {error}
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div>
+          <label className="label">Worker ID</label>
+          <input
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={4}
+            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            placeholder="0000"
+            {...register('loginId', { required: 'Worker ID is required' })}
+          />
+          {errors.loginId && <p className="mt-1.5 text-xs text-rose-600">{errors.loginId.message}</p>}
+        </div>
+        <div>
+          <label className="label">PIN</label>
+          <input
+            type="password"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={6}
+            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            placeholder="••••••"
+            {...register('pin', { required: 'PIN is required' })}
+          />
+          {errors.pin && <p className="mt-1.5 text-xs text-rose-600">{errors.pin.message}</p>}
+        </div>
+        <button type="submit" disabled={isSubmitting} className="btn-primary w-full py-3.5">
+          {isSubmitting ? 'Signing in…' : 'Enter'}
+        </button>
+      </form>
+
+      <p className="mt-8 text-center text-xs text-slate-500">
+        Forgot your Worker ID or PIN? Ask an administrator to look it up or reset it.
+      </p>
+    </AuthShell>
   )
 }
 

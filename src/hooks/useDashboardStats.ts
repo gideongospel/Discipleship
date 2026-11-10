@@ -64,6 +64,8 @@ export function useDashboardStats() {
 
   return {
     loading,
+    disciples,
+    followUps,
     totalDisciples: disciples.length,
     newConverts,
     activeFollowUps,

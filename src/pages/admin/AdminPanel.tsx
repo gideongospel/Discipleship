@@ -121,7 +121,7 @@ export default function AdminPanel() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Admin Panel</h1>
+        <h1 className="page-title">Admin Panel</h1>
         <button className="btn-primary" onClick={() => setShowAddWorker(true)}>
           <UserPlus size={16} /> Add Worker
         </button>
@@ -165,11 +165,11 @@ export default function AdminPanel() {
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 text-left text-xs uppercase text-slate-500 dark:border-slate-800">
             <tr>
-              <th className="py-2">Name</th>
-              <th className="py-2">Worker ID</th>
-              <th className="py-2">Role</th>
-              <th className="py-2">Status</th>
-              <th className="py-2 text-right">Actions</th>
+              <th className="th !px-0 !py-2">Name</th>
+              <th className="th !px-0 !py-2">Worker ID</th>
+              <th className="th !px-0 !py-2">Role</th>
+              <th className="th !px-0 !py-2">Status</th>
+              <th className="th !px-0 !py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

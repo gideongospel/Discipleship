@@ -23,8 +23,9 @@ export const OUTCOME_OPTIONS = [
 ]
 
 export function statusBadgeColor(status: string) {
-  if (status.includes('unsaved')) return 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+  if (status.includes('unsaved')) return 'bg-rose-500/12 text-rose-700 dark:text-rose-300'
   if (status.includes('worker') || status.includes('joined'))
-    return 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-  return 'bg-brand-50 text-brand-700 dark:bg-brand-950/30 dark:text-brand-400'
+    return 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300'
+  if (status.includes('discipleship')) return 'bg-sky-500/12 text-sky-700 dark:text-sky-300'
+  return 'bg-gold-500/15 text-gold-700 dark:text-gold-300'
 }

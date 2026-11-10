@@ -37,7 +37,7 @@ export default function AttendanceSheet() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Church Attendance</h1>
+        <h1 className="page-title">Church Attendance</h1>
         <button className="btn-primary" onClick={() => setShowForm(true)}>
           <Plus size={16} /> Take Attendance
         </button>

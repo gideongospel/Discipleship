@@ -8,6 +8,7 @@ import { SPIRITUAL_STATUS_LABELS } from '../../types'
 import { SPIRITUAL_STATUS_OPTIONS, statusBadgeColor } from '../../utils/constants'
 import { exportToCsv } from '../../utils/csv'
 import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import Avatar from '../../components/ui/Avatar'
 
 export default function DiscipleList() {
   const { profile } = useAuth()
@@ -57,7 +58,7 @@ export default function DiscipleList() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-semibold">Disciple Directory</h1>
+        <h1 className="page-title">Disciple Directory</h1>
         <div className="flex gap-2">
           <button onClick={handleExport} className="btn-secondary">
             <Download size={16} /> Export CSV
@@ -92,11 +93,11 @@ export default function DiscipleList() {
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 text-left text-xs uppercase text-slate-500 dark:border-slate-800">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Location</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Worker</th>
+              <th className="th">Name</th>
+              <th className="th">Phone</th>
+              <th className="th">Location</th>
+              <th className="th">Status</th>
+              <th className="th">Worker</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -110,14 +111,15 @@ export default function DiscipleList() {
             {filtered.map((d) => (
               <tr key={d.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <td className="px-4 py-3">
-                  <Link to={`/disciples/${d.id}`} className="font-medium hover:text-brand-600">
+                  <Link to={`/disciples/${d.id}`} className="flex items-center gap-3 font-semibold hover:text-gold-600 dark:hover:text-gold-300">
+                    <Avatar name={d.name} size={34} />
                     {d.name}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{d.phone}</td>
                 <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{d.outreachLocation}</td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusBadgeColor(d.spiritualStatus)}`}>
+                  <span className={`chip ${statusBadgeColor(d.spiritualStatus)}`}>
                     {SPIRITUAL_STATUS_LABELS[d.spiritualStatus]}
                   </span>
                 </td>

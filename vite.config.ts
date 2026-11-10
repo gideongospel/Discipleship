@@ -9,13 +9,13 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'icons/*.png'],
+      includeAssets: ['favicon-32.png', 'favicon-16.png', 'apple-touch-icon.png', 'robots.txt', 'icons/*.png'],
       manifest: {
-        name: 'Discipleship Tracker',
-        short_name: 'Discipleship',
-        description: 'Evangelism, follow-up, discipleship, attendance and reporting for churches',
-        theme_color: '#0f172a',
-        background_color: '#ffffff',
+        name: 'The Supernatural Arena — Discipleship Tracker',
+        short_name: 'Supernatural Arena',
+        description: 'Evangelism, follow-up, discipleship, attendance and reporting for The Supernatural Arena',
+        theme_color: '#000000',
+        background_color: '#0a0908',
         display: 'standalone',
         start_url: '/',
         icons: [
@@ -25,7 +25,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.origin === 'https://firestore.googleapis.com',

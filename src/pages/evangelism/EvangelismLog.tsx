@@ -49,7 +49,7 @@ export default function EvangelismLog() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Evangelism Log</h1>
+        <h1 className="page-title">Evangelism Log</h1>
         <button className="btn-primary" onClick={() => setShowForm(true)}>
           <Plus size={16} /> Log Outreach
         </button>
@@ -70,12 +70,12 @@ export default function EvangelismLog() {
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 text-left text-xs uppercase text-slate-500 dark:border-slate-800">
             <tr>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Disciple</th>
-              <th className="px-4 py-3">Location</th>
-              <th className="px-4 py-3">Method</th>
-              <th className="px-4 py-3">Receptivity</th>
-              <th className="px-4 py-3">Outcome</th>
+              <th className="th">Date</th>
+              <th className="th">Disciple</th>
+              <th className="th">Location</th>
+              <th className="th">Method</th>
+              <th className="th">Receptivity</th>
+              <th className="th">Outcome</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

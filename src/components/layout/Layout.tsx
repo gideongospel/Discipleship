@@ -1,50 +1,63 @@
-import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { Plus, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+import { X } from 'lucide-react'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+import BottomNav from './BottomNav'
+import CommandPalette from './CommandPalette'
+import DoorsMark from '../brand/DoorsMark'
 
 export default function Layout() {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const navigate = useNavigate()
+  const [drawer, setDrawer] = useState(false)
+  const [palette, setPalette] = useState(false)
+  const location = useLocation()
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPalette((p) => !p)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-200 dark:border-slate-800 lg:block">
+      <aside className="hidden w-[17rem] shrink-0 lg:block">
         <Sidebar />
       </aside>
 
-      {/* Mobile sidebar overlay */}
-      {mobileNavOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileNavOpen(false)} />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-slate-950">
-            <div className="flex justify-end p-2">
-              <button className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => setMobileNavOpen(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <Sidebar onNavigate={() => setMobileNavOpen(false)} />
+      {drawer && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawer(false)} />
+          <aside className="absolute left-0 top-0 h-full w-72 animate-door-left shadow-2xl">
+            <button className="absolute right-3 top-3 z-10 rounded-lg p-2 text-slate-400 hover:bg-white/10" onClick={() => setDrawer(false)}>
+              <X size={18} />
+            </button>
+            <Sidebar onNavigate={() => setDrawer(false)} />
           </aside>
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar onMenuClick={() => setMobileNavOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <Outlet />
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <TopBar onSearch={() => setPalette(true)} />
+
+        {/* Brand watermark: oversized, cropped off the corner, barely there. */}
+        <div className="pointer-events-none fixed -bottom-48 -right-36 z-0 hidden opacity-[0.035] lg:block dark:opacity-[0.04]" aria-hidden="true">
+          <DoorsMark size={520} tone="auto" />
+        </div>
+
+        <main className="relative z-[1] flex-1 overflow-y-auto px-4 pb-32 pt-6 lg:px-10 lg:pb-10 lg:pt-9">
+          <div key={location.pathname} className="mx-auto w-full max-w-6xl animate-fade-up">
+            <Outlet />
+          </div>
         </main>
       </div>
 
-      {/* Floating action button — quick disciple registration from anywhere */}
-      <button
-        onClick={() => navigate('/disciples/new')}
-        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-transform hover:scale-105 hover:bg-brand-700 lg:bottom-8 lg:right-8"
-        title="New Disciple"
-      >
-        <Plus size={24} />
-      </button>
+      <BottomNav onMore={() => setDrawer(true)} />
+      <CommandPalette open={palette} onClose={() => setPalette(false)} />
     </div>
   )
 }

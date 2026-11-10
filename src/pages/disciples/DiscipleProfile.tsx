@@ -9,6 +9,7 @@ import type { AttendanceSession, Disciple, EvangelismRecord } from '../../types'
 import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS } from '../../types'
 import { statusBadgeColor } from '../../utils/constants'
 import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import Avatar from '../../components/ui/Avatar'
 
 export default function DiscipleProfile() {
   const { id } = useParams()
@@ -43,11 +44,15 @@ export default function DiscipleProfile() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">{disciple.name}</h1>
-          <p className="text-sm text-slate-500">{disciple.outreachLocation}</p>
+        <div className="flex items-center gap-4">
+          <Avatar name={disciple.name} size={64} />
+          <div>
+            <p className="eyebrow">Disciple profile</p>
+            <h1 className="page-title">{disciple.name}</h1>
+            <p className="text-sm text-slate-500">{disciple.outreachLocation}</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Link to={`/disciples/${disciple.id}/edit`} className="btn-secondary">
@@ -63,7 +68,7 @@ export default function DiscipleProfile() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <InfoCard label="Spiritual Status">
-          <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusBadgeColor(disciple.spiritualStatus)}`}>
+          <span className={`chip ${statusBadgeColor(disciple.spiritualStatus)}`}>
             {SPIRITUAL_STATUS_LABELS[disciple.spiritualStatus]}
           </span>
         </InfoCard>
@@ -114,7 +119,7 @@ export default function DiscipleProfile() {
           <ol className="space-y-4 border-l border-slate-200 pl-4 dark:border-slate-800">
             {records.map((r) => (
               <li key={r.id} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-brand-600" />
+                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-gold-500" />
                 <p className="text-xs text-slate-500">
                   {r.date} · {r.time} · {r.location}
                 </p>

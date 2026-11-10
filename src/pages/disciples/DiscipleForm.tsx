@@ -78,7 +78,7 @@ export default function DiscipleForm() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h1 className="text-xl font-semibold">{isEdit ? 'Edit Disciple' : 'New Disciple Registration'}</h1>
+      <h1 className="page-title">{isEdit ? 'Edit Disciple' : 'New Disciple Registration'}</h1>
 
       {submitError && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400">

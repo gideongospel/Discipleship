@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Plus, X, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useGoogleCalendar } from '../../context/GoogleCalendarContext'
+import { createCalendarEvent } from '../../services/googleCalendarService'
 import { listDisciples } from '../../services/discipleService'
 import { createFollowUp, listFollowUps, updateFollowUp } from '../../services/followUpService'
 import type { Disciple, FollowUp } from '../../types'
 import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
 
 const STATUS_COLORS: Record<string, string> = {
-  scheduled: 'bg-brand-50 text-brand-700 dark:bg-brand-950/30 dark:text-brand-400',
-  completed: 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400',
-  missed: 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400',
-  rescheduled: 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400',
+  scheduled: 'bg-gold-500/15 text-gold-700 dark:text-gold-300',
+  completed: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
+  missed: 'bg-rose-500/12 text-rose-700 dark:text-rose-300',
+  rescheduled: 'bg-sky-500/12 text-sky-700 dark:text-sky-300',
 }
 
 export default function FollowUpTracker() {
@@ -55,7 +57,7 @@ export default function FollowUpTracker() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Follow-up Tracker</h1>
+        <h1 className="page-title">Follow-up Tracker</h1>
         <button className="btn-primary" onClick={() => setShowForm(true)}>
           <Plus size={16} /> Schedule Follow-up
         </button>
@@ -76,11 +78,11 @@ export default function FollowUpTracker() {
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 text-left text-xs uppercase text-slate-500 dark:border-slate-800">
             <tr>
-              <th className="px-4 py-3">Disciple</th>
-              <th className="px-4 py-3">Scheduled</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Worker</th>
-              <th className="px-4 py-3"></th>
+              <th className="th">Disciple</th>
+              <th className="th">Scheduled</th>
+              <th className="th">Status</th>
+              <th className="th">Worker</th>
+              <th className="th"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -96,7 +98,7 @@ export default function FollowUpTracker() {
                 <td className="px-4 py-3 font-medium">{f.discipleName}</td>
                 <td className="px-4 py-3">{f.scheduledDate}</td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${STATUS_COLORS[f.status]}`}>
+                  <span className={`chip capitalize ${STATUS_COLORS[f.status]}`}>
                     {f.status}
                   </span>
                 </td>
@@ -133,6 +135,9 @@ function FollowUpForm({
   onSaved: () => void
 }) {
   const { profile } = useAuth()
+  const calendar = useGoogleCalendar()
+  const [syncToCalendar, setSyncToCalendar] = useState(false)
+  const [syncWarning, setSyncWarning] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -154,6 +159,9 @@ function FollowUpForm({
     const workerIdx = disciple.assignedWorkerIds.indexOf(workerId)
     const workerName = disciple.assignedWorkerNames[workerIdx] ?? disciple.assignedWorkerNames[0]
 
+    // The Firestore write is the source of truth and always happens first.
+    // Calendar sync is best-effort and runs after — its failure never
+    // rolls back or blocks the follow-up itself.
     await createFollowUp(
       {
         discipleId: disciple.id,
@@ -165,6 +173,27 @@ function FollowUpForm({
       },
       profile,
     )
+
+    if (syncToCalendar && calendar.accessToken) {
+      try {
+        await createCalendarEvent(calendar.accessToken, {
+          title: `Follow-up: ${disciple.name}`,
+          description: `Discipleship Tracker follow-up with ${disciple.name}, assigned to ${workerName}.`,
+          date: values.scheduledDate,
+        })
+      } catch (err) {
+        // Deliberately swallowed beyond a visible warning — the follow-up
+        // already saved successfully above, so this is not a failure of
+        // the core action, just of the optional add-on.
+        setSyncWarning(
+          err instanceof Error
+            ? `Follow-up saved, but calendar sync failed: ${err.message}`
+            : 'Follow-up saved, but calendar sync failed.',
+        )
+        return
+      }
+    }
+
     onSaved()
   }
 
@@ -205,6 +234,27 @@ function FollowUpForm({
             <label className="label">Scheduled date *</label>
             <input type="date" className="input" {...register('scheduledDate', { required: true })} />
           </div>
+
+          {calendar.accessToken && !calendar.isLikelyExpired() ? (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={syncToCalendar} onChange={(e) => setSyncToCalendar(e.target.checked)} />
+              Add to my Google Calendar
+            </label>
+          ) : (
+            <p className="text-xs text-slate-500">
+              Connect Google Calendar in Settings to add this follow-up as a reminder there too.
+            </p>
+          )}
+
+          {syncWarning && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+              {syncWarning}{' '}
+              <button type="button" onClick={onSaved} className="underline">
+                Dismiss
+              </button>
+            </p>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
