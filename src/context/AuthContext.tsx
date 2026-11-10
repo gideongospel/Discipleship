@@ -89,7 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const cred = await signInWithEmailAndPassword(auth, email, pin)
     const p = await getUserProfile(cred.user.uid)
     setProfile(p)
-    await touchLastLogin(cred.user.uid)
+    // Last-login metadata must not block a valid sign-in.
+try {
+  await touchLastLogin(cred.user.uid)
+} catch (err) {
+  console.error('Failed to update last login timestamp', err)
+}
     await logAudit({
       actorId: cred.user.uid,
       actorName: p?.name ?? loginId,
