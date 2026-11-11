@@ -41,7 +41,7 @@ export default function Setup() {
       const { loginId } = await setupFirstAdmin(values.name, values.pin)
       setResult({ loginId, pin: values.pin })
     } catch (err: any) {
-      setError(err?.code === 'auth/weak-password' ? 'PIN must be at least 6 digits.' : 'Setup failed. Please try again.')
+      setError(describeSetupError(err))
     }
   }
 
@@ -127,4 +127,21 @@ export default function Setup() {
       </form>
     </AuthShell>
   )
+}
+
+function describeSetupError(err: any) {
+  switch (err?.code) {
+    case 'auth/weak-password':
+      return 'PIN must be at least 6 digits.'
+    case 'auth/operation-not-allowed':
+      return 'Email/Password sign-in is switched off in Firebase. Enable it under Authentication → Sign-in method.'
+    case 'auth/invalid-api-key':
+      return 'The Firebase API key in Netlify is missing or wrong.'
+    case 'auth/network-request-failed':
+      return 'No internet connection. Check your data and try again.'
+    case 'permission-denied':
+      return 'Firestore is blocking this save. Deploy firestore.rules to your Firebase project.'
+    default:
+      return `Setup failed (${err?.code ?? 'unknown error'}). Please try again.`
+  }
 }

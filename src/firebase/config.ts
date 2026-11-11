@@ -31,6 +31,10 @@ export const app = initializeApp(firebaseConfig)
 // For a production rollout with multiple workers per disciple, add
 // updatedAt version checks or move to a transaction-based merge strategy.
 export const db = initializeFirestore(app, {
+  // Optional fields left blank (e.g. createdBy on the very first admin, or an
+  // empty next-follow-up date) arrive as `undefined`. Without this flag the
+  // SDK throws and the whole save fails; with it, they are simply omitted.
+  ignoreUndefinedProperties: true,
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),

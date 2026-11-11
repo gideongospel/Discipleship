@@ -24,9 +24,14 @@ import {
 import { logAudit } from '../services/auditService'
 import type { AppUser } from '../types'
 
+// 'missing' = signed in to Firebase but no profile document exists (e.g. an
+// interrupted first-time setup). The UI must offer a way out, never a spinner.
+type ProfileState = 'none' | 'loading' | 'ready' | 'missing' | 'error'
+
 interface AuthContextValue {
   firebaseUser: User | null
   profile: AppUser | null
+  profileState: ProfileState
   loading: boolean
   loginWithPin: (loginId: string, pin: string) => Promise<void>
   setupFirstAdmin: (name: string, pin: string) => Promise<{ loginId: string }>
@@ -43,16 +48,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<AppUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileState, setProfileState] = useState<ProfileState>('none')
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user)
       if (user) {
-        const p = await getUserProfile(user.uid)
-        setProfile(p)
+        setProfileState('loading')
+        try {
+          const p = await getUserProfile(user.uid)
+          setProfile(p)
+          setProfileState(p ? 'ready' : 'missing')
+        } catch (err) {
+          console.error('Could not load profile', err)
+          setProfile(null)
+          setProfileState('error')
+        }
       } else {
         setProfile(null)
+        setProfileState('none')
       }
       setLoading(false)
     })
@@ -89,12 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const cred = await signInWithEmailAndPassword(auth, email, pin)
     const p = await getUserProfile(cred.user.uid)
     setProfile(p)
-    // Last-login metadata must not block a valid sign-in.
-try {
-  await touchLastLogin(cred.user.uid)
-} catch (err) {
-  console.error('Failed to update last login timestamp', err)
-}
+    setProfileState(p ? 'ready' : 'missing')
+    await touchLastLogin(cred.user.uid)
     await logAudit({
       actorId: cred.user.uid,
       actorName: p?.name ?? loginId,
@@ -115,6 +126,7 @@ try {
     const p = await createUserProfile(cred.user.uid, name, loginId, 'administrator')
     await markSystemInitialized()
     setProfile(p as AppUser)
+    setProfileState('ready')
     await logAudit({
       actorId: cred.user.uid,
       actorName: name,
@@ -140,7 +152,7 @@ try {
 
   return (
     <AuthContext.Provider
-      value={{ firebaseUser, profile, loading, loginWithPin, setupFirstAdmin, logout }}
+      value={{ firebaseUser, profile, profileState, loading, loginWithPin, setupFirstAdmin, logout }}
     >
       {children}
     </AuthContext.Provider>
