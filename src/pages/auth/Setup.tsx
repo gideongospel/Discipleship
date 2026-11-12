@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { isSystemInitialized } from '../../services/loginService'
 import AuthShell from '../../components/brand/AuthShell'
@@ -50,21 +49,21 @@ export default function Setup() {
   if (result) {
     return (
       <AuthShell>
-        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15">
-          <ShieldCheck className="text-emerald-500" size={24} />
-        </div>
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" className="mb-6 text-gold-600 dark:text-gold-400" aria-hidden="true">
+          <path d="M4.5 12.5 L9.5 17.5 L19.5 6.5" style={{ strokeDasharray: 30 }} className="animate-check" />
+        </svg>
         <h1 className="page-title mb-2">Administrator created.</h1>
         <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
           Write these down now — the PIN will not be shown again.
         </p>
-        <div className="mb-6 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 dark:divide-white/10 dark:border-white/10">
+        <div className="mb-6 divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 dark:divide-white/10 dark:border-white/10">
           <div className="flex items-center justify-between px-4 py-3.5">
             <span className="label !mb-0">Worker ID</span>
-            <span className="font-display text-xl font-extrabold tracking-[0.2em]">{result.loginId}</span>
+            <span className="font-display text-2xl font-medium tracking-[0.2em]">{result.loginId}</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3.5">
             <span className="label !mb-0">PIN</span>
-            <span className="font-display text-xl font-extrabold tracking-[0.2em]">{result.pin}</span>
+            <span className="font-display text-2xl font-medium tracking-[0.2em]">{result.pin}</span>
           </div>
         </div>
         <button onClick={() => navigate('/')} className="btn-primary w-full py-3.5">
@@ -84,7 +83,7 @@ export default function Setup() {
       </p>
 
       {error && (
-        <p className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-sm text-rose-700 dark:text-rose-300">
+        <p className="mb-5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-sm text-rose-700 dark:text-rose-300">
           {error}
         </p>
       )}
@@ -101,7 +100,7 @@ export default function Setup() {
             type="password"
             inputMode="numeric"
             maxLength={6}
-            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            className="input py-3.5 text-center font-display text-2xl font-medium tracking-[0.45em]"
             {...register('pin', {
               required: 'PIN is required',
               minLength: { value: 6, message: 'PIN must be 6 digits' },
@@ -116,7 +115,7 @@ export default function Setup() {
             type="password"
             inputMode="numeric"
             maxLength={6}
-            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            className="input py-3.5 text-center font-display text-2xl font-medium tracking-[0.45em]"
             {...register('confirmPin', { validate: (v) => v === watch('pin') || 'PINs do not match' })}
           />
           {errors.confirmPin && <p className="mt-1.5 text-xs text-rose-600">{errors.confirmPin.message}</p>}

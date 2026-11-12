@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Plus, X } from 'lucide-react'
+import { Plus, X } from '../../components/ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { listDisciples } from '../../services/discipleService'
 import { createEvangelismRecord, listEvangelismRecords } from '../../services/evangelismService'
 import type { Disciple, EvangelismRecord } from '../../types'
 import { RECEPTIVITY_LABELS } from '../../types'
 import { RECEPTIVITY_OPTIONS, OUTCOME_OPTIONS } from '../../utils/constants'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 
 interface FormValues {
   discipleId: string
@@ -44,7 +45,7 @@ export default function EvangelismLog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
 
   return (
     <div className="space-y-4">
@@ -81,8 +82,8 @@ export default function EvangelismLog() {
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {records.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                  No evangelism records yet.
+                <td colSpan={6} className="p-0">
+                  <EmptyState title="No outreach recorded yet">Log your first outreach to begin the story.</EmptyState>
                 </td>
               </tr>
             )}
@@ -151,10 +152,10 @@ function EvangelismForm({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <div className="card max-h-[90vh] w-full max-w-lg overflow-y-auto p-5">
+    <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
+      <div className="card modal-panel max-h-[90vh] w-full max-w-lg overflow-y-auto p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">Log Outreach</h2>
+          <h2 className="font-display text-xl font-medium">Log Outreach</h2>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
           </button>

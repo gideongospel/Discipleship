@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bell, Sun, Moon, LogOut, Plus, CalendarClock } from 'lucide-react'
+import { Search, Bell, Sun, Moon, LogOut, Plus, CalendarClock } from '../ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { listFollowUps } from '../../services/followUpService'
@@ -20,37 +20,37 @@ export default function TopBar({ onSearch }: { onSearch: () => void }) {
     if (profile) listFollowUps(profile).then(setFollowUps).catch(() => setFollowUps([]))
   }, [profile])
 
-  // Needs-attention = scheduled follow-ups that are overdue or due within 3 days.
+  // Needs attention = scheduled follow-ups that are overdue or due within 3 days.
   const due = followUps
     .filter((f) => f.status === 'scheduled' && daysFromToday(f.scheduledDate) <= 3)
     .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
 
   const iconBtn =
-    'relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-white'
+    'relative flex h-10 w-10 items-center justify-center text-slate-500 transition-colors duration-200 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white'
 
   return (
-    <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-slate-200/70 bg-slate-50/80 px-4 py-3 backdrop-blur-xl dark:border-white/[0.06] dark:bg-slate-950/75 lg:px-10">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-slate-50/85 px-4 backdrop-blur-xl dark:border-white/[0.07] dark:bg-slate-950/80 lg:px-10">
       <div className="lg:hidden"><DoorsMark size={30} tone="auto" /></div>
 
       <button
         onClick={onSearch}
-        className="group ml-1 flex h-10 max-w-md flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 text-left text-sm text-slate-400 transition hover:border-gold-400/60 dark:border-white/10 dark:bg-white/[0.03]"
+        className="group flex h-10 min-w-0 max-w-md flex-1 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-left text-sm text-slate-400 transition-colors duration-200 hover:border-slate-400 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/25"
       >
-        <Search size={16} />
+        <Search size={16} strokeWidth={1.6} />
         <span className="flex-1 truncate">Search disciples or jump to…</span>
-        <kbd className="hidden rounded-md border border-slate-200 px-1.5 py-0.5 text-[0.65rem] font-bold sm:block dark:border-white/10">Ctrl K</kbd>
+        <kbd className="hidden rounded border border-slate-200 px-1.5 py-0.5 font-brand text-[0.58rem] font-bold tracking-wider sm:block dark:border-white/10">CTRL K</kbd>
       </button>
 
-      <div className="ml-auto flex items-center gap-1">
-        <button onClick={() => navigate('/disciples/new')} className="btn-primary mr-2 hidden !py-2 lg:inline-flex">
-          <Plus size={16} /> New Disciple
+      <div className="ml-auto flex shrink-0 items-center">
+        <button onClick={() => navigate('/disciples/new')} className="btn-primary mr-3 hidden !py-2 lg:inline-flex">
+          <Plus size={15} strokeWidth={1.8} /> New disciple
         </button>
 
         <div className="relative">
           <button className={iconBtn} onClick={() => setMenu(menu === 'bell' ? null : 'bell')} title="Notifications">
-            <Bell size={18} />
+            <Bell size={19} strokeWidth={1.5} />
             {due.length > 0 && (
-              <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[0.6rem] font-extrabold text-slate-950">
+              <span className="absolute right-1 top-1 flex h-[15px] min-w-[15px] items-center justify-center rounded-[3px] bg-gold-500 px-1 font-brand text-[0.55rem] font-bold text-slate-950">
                 {due.length}
               </span>
             )}
@@ -58,29 +58,27 @@ export default function TopBar({ onSearch }: { onSearch: () => void }) {
           {menu === 'bell' && (
             <>
               <button className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(null)} aria-label="Close" />
-              <div className="card absolute right-0 z-40 mt-2 w-[min(22rem,calc(100vw-2rem))] animate-fade-up overflow-hidden">
-                <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-white/10">
-                  <p className="font-display text-sm font-extrabold">Needs attention</p>
-                  <span className="chip bg-gold-500/15 text-gold-700 dark:text-gold-300">{due.length}</span>
+              <div className="card absolute right-0 z-40 mt-2 w-[min(22rem,calc(100vw-2rem))] animate-rise overflow-hidden">
+                <div className="flex items-baseline justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
+                  <p className="font-display text-lg">Needs attention</p>
+                  <span className="num font-display text-lg text-gold-600 dark:text-gold-400">{due.length}</span>
                 </div>
                 {due.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-sm text-slate-500">You're all caught up.</p>
+                  <p className="px-5 py-9 text-center text-sm text-slate-500">You're all caught up.</p>
                 ) : (
-                  <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto dark:divide-white/[0.06]">
+                  <ul className="max-h-80 overflow-y-auto">
                     {due.slice(0, 8).map((f) => {
                       const overdue = daysFromToday(f.scheduledDate) < 0
                       return (
                         <li key={f.id}>
                           <button
                             onClick={() => { setMenu(null); navigate('/follow-ups') }}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-white/[0.03]"
+                            className="flex w-full items-center gap-3.5 border-b border-slate-100 px-5 py-3.5 text-left transition-colors last:border-b-0 hover:bg-slate-50 dark:border-white/[0.05] dark:hover:bg-white/[0.03]"
                           >
-                            <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${overdue ? 'bg-rose-500/15 text-rose-500' : 'bg-gold-500/15 text-gold-600 dark:text-gold-400'}`}>
-                              <CalendarClock size={16} />
-                            </span>
+                            <CalendarClock size={18} strokeWidth={1.5} className={overdue ? 'text-rose-600 dark:text-rose-400' : 'text-gold-600 dark:text-gold-400'} />
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-semibold">Follow up with {f.discipleName}</span>
-                              <span className={`block text-xs font-semibold ${overdue ? 'text-rose-500' : 'text-slate-500'}`}>{relativeDay(f.scheduledDate)}</span>
+                              <span className="block truncate text-sm font-semibold">{f.discipleName}</span>
+                              <span className={`block text-xs ${overdue ? 'font-semibold text-rose-600 dark:text-rose-400' : 'text-slate-500'}`}>{relativeDay(f.scheduledDate)}</span>
                             </span>
                           </button>
                         </li>
@@ -94,23 +92,23 @@ export default function TopBar({ onSearch }: { onSearch: () => void }) {
         </div>
 
         <button className={iconBtn} onClick={toggleTheme} title="Toggle theme">
-          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          {theme === 'light' ? <Moon size={18} strokeWidth={1.5} /> : <Sun size={18} strokeWidth={1.5} />}
         </button>
 
-        <div className="relative ml-1">
-          <button onClick={() => setMenu(menu === 'profile' ? null : 'profile')} className="rounded-full ring-2 ring-transparent transition hover:ring-gold-400/60">
-            <Avatar name={profile?.name ?? '?'} size={36} />
+        <div className="relative ml-2">
+          <button onClick={() => setMenu(menu === 'profile' ? null : 'profile')} className="block rounded-full transition-opacity hover:opacity-80" aria-label="Account menu">
+            <Avatar name={profile?.name ?? '?'} size={34} />
           </button>
           {menu === 'profile' && (
             <>
               <button className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(null)} aria-label="Close" />
-              <div className="card absolute right-0 z-40 mt-2 w-60 animate-fade-up overflow-hidden">
-                <div className="border-b border-slate-200 px-4 py-3.5 dark:border-white/10">
-                  <p className="text-sm font-bold">{profile?.name}</p>
-                  <p className="text-xs text-slate-500">Worker ID · <span className="font-mono">{profile?.loginId}</span></p>
+              <div className="card absolute right-0 z-40 mt-2 w-60 animate-rise overflow-hidden">
+                <div className="border-b border-slate-200 px-5 py-4 dark:border-white/10">
+                  <p className="font-display text-lg leading-tight">{profile?.name}</p>
+                  <p className="mt-1 text-xs text-slate-500">Worker ID · <span className="num font-semibold">{profile?.loginId}</span></p>
                 </div>
-                <button onClick={logout} className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-rose-600 hover:bg-rose-500/10">
-                  <LogOut size={15} /> Sign out
+                <button onClick={logout} className="flex w-full items-center gap-3 px-5 py-3.5 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-500/10 dark:text-rose-400">
+                  <LogOut size={16} strokeWidth={1.6} /> Sign out
                 </button>
               </div>
             </>

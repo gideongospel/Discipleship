@@ -24,7 +24,7 @@ A PWA for churches to manage evangelism, follow-up, discipleship, attendance, an
 - CSV export, light/dark mode, responsive layout, PWA offline persistence — unchanged
 - **Reports & Analytics page** (`/reports`): spiritual status distribution, evangelism
   receptivity and outcomes, follow-up status breakdown, average attendance by service
-  type, and a 12-session attendance trend — all via `recharts`
+  type, and a 12-session attendance trend — drawn with lightweight custom SVG (no chart library)
 - **Top-level error boundary**: catches unexpected render crashes anywhere in the app
   and shows a "Reload" screen instead of a blank white page. Doesn't catch async
   errors (network failures, etc.) — those are handled locally where they happen.
@@ -198,16 +198,24 @@ npm run dev
   rule check does a `get()` on the user doc — fine at hundreds of users, worth revisiting
   with custom claims if you scale to tens of thousands of concurrent rule evaluations.
 
-## Visual identity (The Supernatural Arena)
+## Visual identity (The Supernatural Arena) — v2
 
-- **Palette**: warm ink-black and bone-white taken from the logo, with one gold accent
-  (the light through the doors). The Tailwind `slate` scale is deliberately re-tinted warm
-  in `src/index.css` (`@theme`), so any new screen inherits the brand automatically.
-- **Type**: Montserrat (headings, echoing the logo's geometric wordmark) + Figtree (body),
-  both bundled locally via `@fontsource-variable` so they work offline in the PWA.
-- **Dark by default** (first visit); the toggle persists the choice.
-- **Brand components**: `src/components/brand/` — `DoorsMark` (the doors slide open on the
-  login screen), `Wordmark` (live-text logo lockup), `AuthShell` (login/setup stage).
-- **Command palette**: Ctrl/Cmd + K searches disciples (name, phone, location) and jumps to any screen.
-- **Notifications bell**: live list of follow-ups that are overdue or due within 3 days.
-- The login tagline ("Every disciple known. Every follow-up kept.") lives in `AuthShell.tsx` — edit freely.
+A deliberately non-generic, editorial system. The principles, so future changes stay on-brand:
+
+- **Flat and quiet.** Surfaces are separated by hairlines, not shadows or glows. One gold accent
+  (the light through the doors) used sparingly. The Tailwind `slate` scale is re-tinted warm in
+  `src/index.css`, so any new screen inherits the palette.
+- **Type.** Newsreader (serif) for headings and numerals; Figtree for UI text; Montserrat only for the
+  logo's lettering and small-cap labels. All bundled locally via `@fontsource-variable` (works offline).
+- **Icons.** A custom angular set in `src/components/ui/icons.tsx` (square caps, mitered joins — the geometry
+  of the logo) with church metaphors: lantern = outreach, calendar-with-cross = follow-ups, pew = attendance,
+  key = admin, sprout = new converts. No icon library is installed.
+- **Status** is shown as text with a small diamond (`.tag`), never a coloured pill.
+- **Motion** is one easing curve, short distances, entrances play once: doors slide open on the login screen,
+  the discipleship path draws itself, bars draw in, numbers count up, loading is the doors parting.
+  `prefers-reduced-motion` turns it all off. **Rule:** entrance animations use `backwards` fill-mode, never
+  `both` — a lingering transform traps `position: fixed` modals inside the page.
+- **Charts** are custom (`BarList`, `TrendLine`); the charting library was removed (~350 KB lighter).
+- **Dark by default** on first visit; the toggle persists.
+- **Command palette**: Ctrl/Cmd + K. **Notifications bell**: follow-ups overdue or due within 3 days.
+- The login tagline lives in `src/components/brand/AuthShell.tsx`.

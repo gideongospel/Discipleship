@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Plus, X, Check } from 'lucide-react'
+import { Plus, X, Check } from '../../components/ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { useGoogleCalendar } from '../../context/GoogleCalendarContext'
 import { createCalendarEvent } from '../../services/googleCalendarService'
 import { listDisciples } from '../../services/discipleService'
 import { createFollowUp, listFollowUps, updateFollowUp } from '../../services/followUpService'
 import type { Disciple, FollowUp } from '../../types'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 
 const STATUS_COLORS: Record<string, string> = {
-  scheduled: 'bg-gold-500/15 text-gold-700 dark:text-gold-300',
-  completed: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
-  missed: 'bg-rose-500/12 text-rose-700 dark:text-rose-300',
-  rescheduled: 'bg-sky-500/12 text-sky-700 dark:text-sky-300',
+  scheduled: 'text-gold-700 dark:text-gold-300',
+  completed: 'text-emerald-700 dark:text-emerald-400',
+  missed: 'text-rose-700 dark:text-rose-300',
+  rescheduled: 'text-slate-600 dark:text-slate-300',
 }
 
 export default function FollowUpTracker() {
@@ -52,7 +53,7 @@ export default function FollowUpTracker() {
     load()
   }
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
 
   return (
     <div className="space-y-4">
@@ -88,8 +89,8 @@ export default function FollowUpTracker() {
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {followUps.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                  No follow-ups scheduled.
+                <td colSpan={5} className="p-0">
+                  <EmptyState title="No follow-ups scheduled">Schedule a visit so no disciple is forgotten.</EmptyState>
                 </td>
               </tr>
             )}
@@ -98,7 +99,7 @@ export default function FollowUpTracker() {
                 <td className="px-4 py-3 font-medium">{f.discipleName}</td>
                 <td className="px-4 py-3">{f.scheduledDate}</td>
                 <td className="px-4 py-3">
-                  <span className={`chip capitalize ${STATUS_COLORS[f.status]}`}>
+                  <span className={`tag capitalize ${STATUS_COLORS[f.status]}`}>
                     {f.status}
                   </span>
                 </td>
@@ -198,10 +199,10 @@ function FollowUpForm({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <div className="card w-full max-w-md p-5">
+    <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
+      <div className="card modal-panel w-full max-w-md p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">Schedule Follow-up</h2>
+          <h2 className="font-display text-xl font-medium">Schedule Follow-up</h2>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
           </button>

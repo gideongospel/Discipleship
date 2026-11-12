@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ShieldCheck, ShieldOff, KeyRound, UserPlus, X } from 'lucide-react'
+import { ArrowUp, ArrowDown, KeyRound, UserPlus, X } from '../../components/ui/icons'
 import { collection, doc, getDocs, query, where, writeBatch } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import { useAuth } from '../../context/AuthContext'
@@ -15,7 +15,7 @@ import {
 import { logAudit } from '../../services/auditService'
 import { listDisciples, updateDisciple } from '../../services/discipleService'
 import type { AppUser, Disciple } from '../../types'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
 
 export default function AdminPanel() {
   const { profile } = useAuth()
@@ -38,7 +38,7 @@ export default function AdminPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
 
   const toggleRole = async (u: AppUser) => {
     if (!profile) return
@@ -139,9 +139,9 @@ export default function AdminPanel() {
       )}
 
       {credentialModal && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-          <div className="card w-full max-w-sm p-6 text-center">
-            <h2 className="mb-2 font-semibold">{credentialModal.name}'s login details</h2>
+        <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
+          <div className="card modal-panel w-full max-w-sm p-6 text-center">
+            <h2 className="mb-2 font-display text-xl font-medium">{credentialModal.name}'s login details</h2>
             <p className="mb-4 text-sm text-slate-500">Write these down now — the PIN won't be shown again.</p>
             <div className="mb-4 space-y-2 rounded-lg bg-slate-50 p-4 text-left dark:bg-slate-800">
               <p className="text-sm">
@@ -161,7 +161,7 @@ export default function AdminPanel() {
       )}
 
       <div className="card p-5">
-        <h2 className="mb-3 font-semibold">All Users ({users.length})</h2>
+        <h2 className="mb-3 font-display text-xl font-medium">All Users ({users.length})</h2>
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 text-left text-xs uppercase text-slate-500 dark:border-slate-800">
             <tr>
@@ -181,21 +181,21 @@ export default function AdminPanel() {
                 <td className="py-2 capitalize">{u.status}</td>
                 <td className="py-2 text-right">
                   <div className="inline-flex gap-2">
-                    <button onClick={() => resetPin(u)} className="btn-secondary !px-2 !py-1" title="Reset PIN">
-                      <KeyRound size={14} />
+                    <button onClick={() => resetPin(u)} className="btn-secondary !gap-1.5 !px-2.5 !py-1.5 !text-xs" title="Reset PIN">
+                      <KeyRound size={14} /> Reset PIN
                     </button>
                     <button
                       onClick={() => toggleRole(u)}
                       disabled={u.uid === profile?.uid}
-                      className="btn-secondary !px-2 !py-1"
+                      className="btn-secondary !gap-1.5 !px-2.5 !py-1.5 !text-xs"
                       title={u.role === 'administrator' ? 'Demote to worker' : 'Promote to administrator'}
                     >
-                      {u.role === 'administrator' ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
+                      {u.role === 'administrator' ? <><ArrowDown size={14} /> Demote</> : <><ArrowUp size={14} /> Promote</>}
                     </button>
                     <button
                       onClick={() => toggleSuspend(u)}
                       disabled={u.uid === profile?.uid}
-                      className="btn-secondary !px-2 !py-1"
+                      className="btn-secondary !px-2.5 !py-1.5 !text-xs"
                     >
                       {u.status === 'suspended' ? 'Reactivate' : 'Suspend'}
                     </button>
@@ -245,10 +245,10 @@ function AddWorkerForm({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <div className="card w-full max-w-sm p-5">
+    <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
+      <div className="card modal-panel w-full max-w-sm p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">Add Worker</h2>
+          <h2 className="font-display text-xl font-medium">Add Worker</h2>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
           </button>
@@ -305,7 +305,7 @@ function AssignmentsPanel({
 
   return (
     <div className="card p-5">
-      <h2 className="mb-1 font-semibold">Disciple Assignments</h2>
+      <h2 className="mb-1 font-display text-xl font-medium">Disciple Assignments</h2>
       <p className="mb-3 text-xs text-slate-500">
         Check or uncheck workers to share or reassign a disciple. Changes take effect immediately.
       </p>

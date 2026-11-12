@@ -14,7 +14,7 @@ export default function Wordmark({
     lg: { the: 'text-xs tracking-[0.65em]', main: 'text-[2rem] tracking-[-0.015em] sm:text-[2.4rem]' },
   }[size]
   return (
-    <div className={`font-display leading-none ${className}`}>
+    <div className={`font-brand leading-none ${className}`}>
       <div className={`mb-[0.35em] pl-[0.1em] font-bold ${cfg.the}`}>THE</div>
       <div className={`font-black uppercase ${cfg.main}`}>Supernatural Arena</div>
     </div>

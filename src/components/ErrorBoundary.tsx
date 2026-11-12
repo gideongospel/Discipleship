@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from './ui/icons'
 
 interface Props {
   children: ReactNode
@@ -32,10 +32,8 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
           <div className="card max-w-sm p-6 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/30">
-              <AlertTriangle className="text-red-600" size={24} />
-            </div>
-            <h1 className="mb-2 text-lg font-semibold">Something went wrong</h1>
+            <AlertTriangle className="mx-auto mb-5 text-rose-600" size={30} strokeWidth={1.4} />
+            <h1 className="mb-2 font-display text-2xl">Something went wrong</h1>
             <p className="mb-4 text-sm text-slate-500">
               The app hit an unexpected error. Your data is saved — this only affects the current screen. Reloading
               usually fixes it.

@@ -1,7 +1,7 @@
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { useGoogleCalendar } from '../context/GoogleCalendarContext'
-import { CalendarCheck } from 'lucide-react'
+import { CalendarCheck } from '../components/ui/icons'
 
 export default function Settings() {
   const { profile } = useAuth()
@@ -13,7 +13,7 @@ export default function Settings() {
       <h1 className="page-title">Settings</h1>
 
       <div className="card p-5">
-        <h2 className="mb-3 font-semibold">Profile</h2>
+        <h2 className="mb-3 font-display text-xl font-medium">Profile</h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className="text-slate-500">Name</dt>
@@ -34,7 +34,7 @@ export default function Settings() {
       </div>
 
       <div className="card p-5">
-        <h2 className="mb-1 font-semibold">Google Calendar</h2>
+        <h2 className="mb-1 font-display text-xl font-medium">Google Calendar</h2>
         <p className="mb-3 text-xs text-slate-500">
           Connects your <em>personal</em> Google Calendar to receive follow-up reminders. Each worker
           connects their own — there's no shared church calendar. The connection lasts about an hour
@@ -64,11 +64,16 @@ export default function Settings() {
       </div>
 
       <div className="card p-5">
-        <h2 className="mb-3 font-semibold">Appearance</h2>
+        <h2 className="mb-3 font-display text-xl font-medium">Appearance</h2>
         <div className="flex items-center justify-between">
           <span className="text-sm">Dark mode</span>
-          <button onClick={toggleTheme} className="btn-secondary">
-            {theme === 'dark' ? 'On' : 'Off'}
+          <button
+            role="switch"
+            aria-checked={theme === 'dark'}
+            onClick={toggleTheme}
+            className={`relative h-6 w-11 rounded-md transition-colors duration-300 ${theme === 'dark' ? 'bg-gold-500' : 'bg-slate-300'}`}
+          >
+            <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded bg-white shadow-sm transition-transform duration-300 ease-out ${theme === 'dark' ? 'translate-x-5' : ''}`} />
           </button>
         </div>
       </div>

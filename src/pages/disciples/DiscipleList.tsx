@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Download, Search } from 'lucide-react'
+import { Download, Search } from '../../components/ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { listDisciples } from '../../services/discipleService'
 import type { Disciple } from '../../types'
 import { SPIRITUAL_STATUS_LABELS } from '../../types'
 import { SPIRITUAL_STATUS_OPTIONS, statusBadgeColor } from '../../utils/constants'
 import { exportToCsv } from '../../utils/csv'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 
 export default function DiscipleList() {
@@ -53,7 +54,7 @@ export default function DiscipleList() {
     )
   }
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
 
   return (
     <div className="space-y-4">
@@ -63,7 +64,7 @@ export default function DiscipleList() {
           <button onClick={handleExport} className="btn-secondary">
             <Download size={16} /> Export CSV
           </button>
-          <Link to="/disciples/new" className="btn-primary">
+          <Link to="/disciples/new" className="btn-primary lg:hidden">
             New Disciple
           </Link>
         </div>
@@ -103,8 +104,8 @@ export default function DiscipleList() {
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                  No disciples found.
+                <td colSpan={5} className="p-0">
+                  <EmptyState title="No disciples found" action={<Link to="/disciples/new" className="btn-primary">New disciple</Link>}>Adjust your search, or register someone new.</EmptyState>
                 </td>
               </tr>
             )}
@@ -119,7 +120,7 @@ export default function DiscipleList() {
                 <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{d.phone}</td>
                 <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{d.outreachLocation}</td>
                 <td className="px-4 py-3">
-                  <span className={`chip ${statusBadgeColor(d.spiritualStatus)}`}>
+                  <span className={`tag ${statusBadgeColor(d.spiritualStatus)}`}>
                     {SPIRITUAL_STATUS_LABELS[d.spiritualStatus]}
                   </span>
                 </td>

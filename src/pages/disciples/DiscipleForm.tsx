@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useWorkers } from '../../hooks/useWorkers'
 import { createDisciple, getDisciple, updateDisciple, type DiscipleInput } from '../../services/discipleService'
 import { SPIRITUAL_STATUS_OPTIONS } from '../../utils/constants'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
 
 type FormValues = Omit<DiscipleInput, 'assignedWorkerIds' | 'assignedWorkerNames'>
 
@@ -44,7 +44,7 @@ export default function DiscipleForm() {
     })
   }, [id, isEdit, reset])
 
-  if (loading || workersLoading) return <FullScreenLoader />
+  if (loading || workersLoading) return <PageLoader />
 
   const toggleWorker = (uid: string) => {
     setSelectedWorkerIds((prev) => (prev.includes(uid) ? prev.filter((w) => w !== uid) : [...prev, uid]))

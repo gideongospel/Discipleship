@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Plus, X } from '../../components/ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { listDisciples } from '../../services/discipleService'
 import {
@@ -10,7 +10,8 @@ import {
 import type { AttendanceSession, Disciple, ServiceType } from '../../types'
 import { SERVICE_TYPE_LABELS } from '../../types'
 import { SERVICE_TYPE_OPTIONS } from '../../utils/constants'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 
 export default function AttendanceSheet() {
   const { profile } = useAuth()
@@ -32,7 +33,7 @@ export default function AttendanceSheet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
 
   return (
     <div className="space-y-4">
@@ -56,9 +57,9 @@ export default function AttendanceSheet() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="card p-4">
-          <h2 className="mb-3 font-semibold">Recent Sessions</h2>
+          <h2 className="mb-3 font-display text-xl font-medium">Recent Sessions</h2>
           {sessions.length === 0 ? (
-            <p className="text-sm text-slate-500">No sessions recorded yet.</p>
+            <EmptyState title="No sessions yet">Take attendance after your next gathering.</EmptyState>
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
               {sessions.slice(0, 10).map((s) => (
@@ -77,9 +78,9 @@ export default function AttendanceSheet() {
         </div>
 
         <div className="card p-4">
-          <h2 className="mb-3 font-semibold">Attendance by Disciple</h2>
+          <h2 className="mb-3 font-display text-xl font-medium">Attendance by Disciple</h2>
           {disciples.length === 0 ? (
-            <p className="text-sm text-slate-500">No disciples yet.</p>
+            <EmptyState title="No disciples yet">Register disciples to track their attendance.</EmptyState>
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
               {disciples.map((d) => {
@@ -137,10 +138,10 @@ function TakeAttendanceForm({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <div className="card max-h-[90vh] w-full max-w-lg overflow-y-auto p-5">
+    <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
+      <div className="card modal-panel max-h-[90vh] w-full max-w-lg overflow-y-auto p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">Take Attendance</h2>
+          <h2 className="font-display text-xl font-medium">Take Attendance</h2>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
           </button>

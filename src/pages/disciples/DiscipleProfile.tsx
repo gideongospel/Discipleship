@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from '../../components/ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { deleteDisciple, getDisciple } from '../../services/discipleService'
 import { listEvangelismRecords } from '../../services/evangelismService'
@@ -8,7 +8,8 @@ import { listAttendanceSessions, calculateAttendanceStats } from '../../services
 import type { AttendanceSession, Disciple, EvangelismRecord } from '../../types'
 import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS } from '../../types'
 import { statusBadgeColor } from '../../utils/constants'
-import { FullScreenLoader } from '../../components/layout/ProtectedRoute'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 import Avatar from '../../components/ui/Avatar'
 
 export default function DiscipleProfile() {
@@ -32,7 +33,7 @@ export default function DiscipleProfile() {
     )
   }, [id, profile])
 
-  if (loading) return <FullScreenLoader />
+  if (loading) return <PageLoader />
   if (!disciple) return <p className="text-slate-500">Disciple not found.</p>
 
   const attendance = calculateAttendanceStats(sessions, disciple.id, disciple.dateFirstContacted)
@@ -59,27 +60,27 @@ export default function DiscipleProfile() {
             <Pencil size={16} /> Edit
           </Link>
           {profile?.role === 'administrator' && (
-            <button onClick={handleDelete} className="btn-danger">
+            <button onClick={handleDelete} aria-label="Delete disciple" className="btn-secondary !px-3 !text-rose-700 hover:!border-rose-700 dark:!text-rose-300">
               <Trash2 size={16} />
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid border-y border-slate-200 dark:border-white/[0.09] sm:grid-cols-3">
         <InfoCard label="Spiritual Status">
-          <span className={`chip ${statusBadgeColor(disciple.spiritualStatus)}`}>
+          <span className={`tag ${statusBadgeColor(disciple.spiritualStatus)}`}>
             {SPIRITUAL_STATUS_LABELS[disciple.spiritualStatus]}
           </span>
         </InfoCard>
         <InfoCard label="Attendance Rate">
-          <p className="text-lg font-semibold">{attendance.rate}%</p>
+          <p className="num font-display text-[2.6rem] font-light leading-none">{attendance.rate}<span className="ml-0.5 text-lg text-gold-600 dark:text-gold-400">%</span></p>
           <p className="text-xs text-slate-500">
             {attendance.attended}/{attendance.totalSessions} sessions
           </p>
         </InfoCard>
         <InfoCard label="Assigned Workers">
-          <p className="font-medium">{disciple.assignedWorkerNames?.join(', ') || '—'}</p>
+          <p className="font-display text-xl leading-snug">{disciple.assignedWorkerNames?.join(', ') || '—'}</p>
         </InfoCard>
       </div>
 
@@ -93,7 +94,7 @@ export default function DiscipleProfile() {
       )}
 
       <div className="card p-5">
-        <h2 className="mb-3 font-semibold">Contact Details</h2>
+        <h2 className="mb-3 font-display text-xl font-medium">Contact Details</h2>
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <Field label="Phone" value={disciple.phone} />
           <Field label="Email" value={disciple.email || '—'} />
@@ -112,14 +113,14 @@ export default function DiscipleProfile() {
       </div>
 
       <div className="card p-5">
-        <h2 className="mb-3 font-semibold">Evangelism & Follow-up History</h2>
+        <h2 className="mb-3 font-display text-xl font-medium">Evangelism & Follow-up History</h2>
         {records.length === 0 ? (
-          <p className="text-sm text-slate-500">No records yet.</p>
+          <EmptyState title="No outreach recorded">Visits and conversations with this person will appear here.</EmptyState>
         ) : (
           <ol className="space-y-4 border-l border-slate-200 pl-4 dark:border-slate-800">
             {records.map((r) => (
               <li key={r.id} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-gold-500" />
+                <span className="absolute -left-[20px] top-1.5 h-2 w-2 rotate-45 bg-gold-500" />
                 <p className="text-xs text-slate-500">
                   {r.date} · {r.time} · {r.location}
                 </p>
@@ -140,8 +141,8 @@ export default function DiscipleProfile() {
 
 function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="card p-4">
-      <p className="mb-1 text-xs font-medium text-slate-500">{label}</p>
+    <div className="border-slate-200 px-6 py-6 max-sm:pl-0 max-sm:[&:nth-child(n+2)]:border-t sm:border-l sm:first:border-l-0 sm:first:pl-0 dark:border-white/[0.09]">
+      <p className="mb-3 font-brand text-[0.6rem] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
       {children}
     </div>
   )

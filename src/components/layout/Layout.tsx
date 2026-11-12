@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { X } from 'lucide-react'
+import { X } from '../ui/icons'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
@@ -45,7 +45,7 @@ export default function Layout() {
         <TopBar onSearch={() => setPalette(true)} />
 
         {/* Brand watermark: oversized, cropped off the corner, barely there. */}
-        <div className="pointer-events-none fixed -bottom-48 -right-36 z-0 hidden opacity-[0.035] lg:block dark:opacity-[0.04]" aria-hidden="true">
+        <div className="pointer-events-none fixed -bottom-48 -right-36 z-0 hidden opacity-[0.022] lg:block dark:opacity-[0.03]" aria-hidden="true">
           <DoorsMark size={520} tone="auto" />
         </div>
 

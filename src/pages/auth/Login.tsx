@@ -53,12 +53,12 @@ export default function Login() {
       </p>
 
       {location.state?.blocked && (
-        <p className="mb-5 rounded-xl border border-gold-500/30 bg-gold-500/10 px-3.5 py-2.5 text-sm text-gold-700 dark:text-gold-300">
+        <p className="mb-5 rounded-lg border border-gold-500/30 bg-gold-500/10 px-3.5 py-2.5 text-sm text-gold-700 dark:text-gold-300">
           Your account has been {location.state.blocked}. Contact an administrator.
         </p>
       )}
       {error && (
-        <p className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-sm text-rose-700 dark:text-rose-300">
+        <p className="mb-5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-sm text-rose-700 dark:text-rose-300">
           {error}
         </p>
       )}
@@ -70,7 +70,7 @@ export default function Login() {
             inputMode="numeric"
             autoComplete="off"
             maxLength={4}
-            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            className="input py-3.5 text-center font-display text-2xl font-medium tracking-[0.45em]"
             placeholder="0000"
             {...register('loginId', { required: 'Worker ID is required' })}
           />
@@ -83,7 +83,7 @@ export default function Login() {
             inputMode="numeric"
             autoComplete="off"
             maxLength={6}
-            className="input py-3.5 text-center font-display text-xl font-bold tracking-[0.5em]"
+            className="input py-3.5 text-center font-display text-2xl font-medium tracking-[0.45em]"
             placeholder="••••••"
             {...register('pin', { required: 'PIN is required' })}
           />

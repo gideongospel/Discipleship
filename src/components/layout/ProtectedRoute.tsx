@@ -2,6 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import type { UserRole } from '../../types'
 import AuthShell from '../brand/AuthShell'
+import DoorsMark from '../brand/DoorsMark'
 
 export function RequireAuth() {
   const { firebaseUser, profile, profileState, loading } = useAuth()
@@ -28,8 +29,8 @@ export function RequireRole({ roles }: { roles: UserRole[] }) {
 
 export function FullScreenLoader() {
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
+    <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <DoorsMark size={64} tone="auto" motion="loop" />
     </div>
   )
 }
