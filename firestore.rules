@@ -76,7 +76,11 @@ service cloud.firestore {
         || (request.auth.uid == uid
             && request.resource.data.role == 'administrator'
             && !systemInitialized());
-      allow update: if isAdmin();
+      // Admins can update any profile. Every signed-in user may update ONLY the
+      // lastLoginAt field on their OWN profile — never role, status or loginId.
+      allow update: if isAdmin()
+        || (isActive() && request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt']));
       allow delete: if isAdmin(); // used only to clean up the old doc after a PIN reset
     }
 

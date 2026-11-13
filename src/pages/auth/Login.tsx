@@ -109,7 +109,11 @@ function mapAuthError(code?: string) {
       return 'Incorrect Worker ID or PIN.'
     case 'auth/too-many-requests':
       return 'Too many attempts. Try again later.'
+    case 'auth/network-request-failed':
+      return 'No internet connection. Check your data and try again.'
+    case 'permission-denied':
+      return 'Your account could not be loaded. Please contact an administrator.'
     default:
-      return 'Unable to sign in. Please try again.'
+      return `Unable to sign in${code ? ` (${code})` : ''}. Please try again.`
   }
 }

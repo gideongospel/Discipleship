@@ -105,7 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const p = await getUserProfile(cred.user.uid)
     setProfile(p)
     setProfileState(p ? 'ready' : 'missing')
-    await touchLastLogin(cred.user.uid)
+    // Recording the last-login time is housekeeping. It must never block a valid
+    // sign-in (a worker may not be permitted to write to their own profile).
+    try {
+      await touchLastLogin(cred.user.uid)
+    } catch (err) {
+      console.warn('Could not record last login time', err)
+    }
     await logAudit({
       actorId: cred.user.uid,
       actorName: p?.name ?? loginId,
