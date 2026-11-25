@@ -153,12 +153,17 @@ function TakeAttendanceForm({
   const handleSave = async () => {
     if (!profile) return
     setSaving(true)
-    await createAttendanceSession(
-      { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present), presentDiscipleNames: Object.fromEntries(disciples.filter((d) => present.has(d.id)).map((d) => [d.id, d.name])) },
-      profile,
-    )
-    setSaving(false)
-    onSaved()
+    try {
+      await createAttendanceSession(
+        { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present), presentDiscipleNames: Object.fromEntries(disciples.filter((d) => present.has(d.id)).map((d) => [d.id, d.name])) },
+        profile,
+      )
+      onSaved()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to save attendance.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
