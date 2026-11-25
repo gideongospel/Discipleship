@@ -62,7 +62,7 @@ export function useAnalyticsData() {
   })).filter((d) => d.value > 0)
 
   // Follow-up status breakdown
-  const followUpStatusData = ['scheduled', 'completed', 'missed', 'rescheduled'].map((status) => ({
+  const followUpStatusData = ['scheduled', 'completed', 'missed', 'rescheduled', 'postponed', 'pending'].map((status) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
     value: followUps.filter((f) => f.status === status).length,
   })).filter((d) => d.value > 0)
