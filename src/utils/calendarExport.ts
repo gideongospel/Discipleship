@@ -10,6 +10,13 @@ function googleDate(date: string, time: string) {
   return dateTime(date, time).replace(/[-:]/g, '')
 }
 
+function endTime(event: ChurchEvent) {
+  if (event.endTime) return event.endTime
+  const [hours, minutes] = (event.startTime || '00:00').split(':').map(Number)
+  const total = hours * 60 + minutes + 60
+  return `${String(Math.floor((total % 1440) / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
+}
+
 function escapeIcs(value: string) {
   return value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
 }
@@ -22,7 +29,7 @@ function recurrenceRule(event: ChurchEvent) {
 
 export function googleCalendarUrl(event: ChurchEvent) {
   const start = googleDate(event.date, event.startTime)
-  const end = googleDate(event.date, event.endTime || event.startTime)
+  const end = googleDate(event.date, endTime(event))
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: event.title,
@@ -39,7 +46,7 @@ export function googleCalendarUrl(event: ChurchEvent) {
 export function downloadIcs(event: ChurchEvent) {
   const uid = `${event.id}@discipleship-tracker`
   const start = `${event.date.replace(/-/g, '')}T${(event.startTime || '00:00').replace(':', '')}00`
-  const end = `${event.date.replace(/-/g, '')}T${(event.endTime || event.startTime || '00:00').replace(':', '')}00`
+  const end = `${event.date.replace(/-/g, '')}T${endTime(event).replace(':', '')}00`
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -57,7 +64,7 @@ export function downloadIcs(event: ChurchEvent) {
     'END:VEVENT',
     'END:VCALENDAR',
   ].filter(Boolean)
-  const blob = new Blob([lines.join('\\r\\n')], { type: 'text/calendar;charset=utf-8' })
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
