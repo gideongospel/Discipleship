@@ -27,15 +27,24 @@ export default function FollowUpTracker() {
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
   const [disciples, setDisciples] = useState<Disciple[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [editing, setEditing] = useState<FollowUp | null>(null)
   const [showForm, setShowForm] = useState(false)
 
   const load = async () => {
     if (!profile) return
-    const [f, d] = await Promise.all([listFollowUps(profile), listDisciples(profile)])
-    setFollowUps(f)
-    setDisciples(d)
-    setLoading(false)
+    setLoading(true)
+    setLoadError('')
+    try {
+      const [f, d] = await Promise.all([listFollowUps(profile), listDisciples(profile)])
+      setFollowUps(f)
+      setDisciples(d)
+    } catch (cause) {
+      console.error('Follow-up data loading failed:', cause)
+      setLoadError(cause instanceof Error ? cause.message : 'Follow-up data could not be loaded. Check your Firebase access and try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load().catch(() => setLoading(false)) }, [profile])
