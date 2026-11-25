@@ -6,6 +6,9 @@ import {
   createAttendanceSession,
   listAttendanceSessions,
   calculateAttendanceStats,
+  listAttendanceRecords,
+  recordSelfAttendance,
+  type AttendanceRecord,
 } from '../../services/attendanceService'
 import type { AttendanceSession, Disciple, ServiceType } from '../../types'
 import { SERVICE_TYPE_LABELS } from '../../types'
@@ -17,14 +20,17 @@ export default function AttendanceSheet() {
   const { profile } = useAuth()
   const [sessions, setSessions] = useState<AttendanceSession[]>([])
   const [disciples, setDisciples] = useState<Disciple[]>([])
+  const [myRecords, setMyRecords] = useState<AttendanceRecord[]>([])
+  const [recordingSession, setRecordingSession] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const load = async () => {
     if (!profile) return
-    const [s, d] = await Promise.all([listAttendanceSessions(), listDisciples(profile)])
+    const [s, d, mine] = await Promise.all([listAttendanceSessions(), listDisciples(profile), listAttendanceRecords(profile.uid)])
     setSessions(s)
     setDisciples(d)
+    setMyRecords(mine)
     setLoading(false)
   }
 
@@ -32,6 +38,19 @@ export default function AttendanceSheet() {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
+
+  const markMyAttendance = async (session: AttendanceSession) => {
+    if (!profile) return
+    setRecordingSession(session.id)
+    try {
+      await recordSelfAttendance(session, profile)
+      await load()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to record attendance.')
+    } finally {
+      setRecordingSession(null)
+    }
+  }
 
   if (loading) return <PageLoader />
 
@@ -62,17 +81,22 @@ export default function AttendanceSheet() {
             <EmptyState title="No sessions yet">Take attendance after your next gathering.</EmptyState>
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-              {sessions.slice(0, 10).map((s) => (
-                <li key={s.id} className="flex items-center justify-between py-2 text-sm">
-                  <span>
-                    {SERVICE_TYPE_LABELS[s.serviceType]}
-                    {s.title ? ` — ${s.title}` : ''}
-                  </span>
-                  <span className="text-slate-500">
-                    {s.date} · {s.presentDiscipleIds.length} present
-                  </span>
-                </li>
-              ))}
+              {sessions.slice(0, 10).map((s) => {
+                const recorded = myRecords.some((record) => record.sessionId === s.id)
+                return (
+                  <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{SERVICE_TYPE_LABELS[s.serviceType]}{s.title ? ` — ${s.title}` : ''}</span>
+                      <span className="text-xs text-slate-500">{s.date} · {s.presentDiscipleIds.length} present</span>
+                    </span>
+                    {recorded ? <span className="tag text-emerald-700 dark:text-emerald-400">You attended</span> : (
+                      <button className="btn-secondary !px-2 !py-1" disabled={recordingSession === s.id} onClick={() => markMyAttendance(s)}>
+                        {recordingSession === s.id ? 'Saving…' : 'Mark my attendance'}
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
@@ -130,7 +154,7 @@ function TakeAttendanceForm({
     if (!profile) return
     setSaving(true)
     await createAttendanceSession(
-      { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present) },
+      { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present), presentDiscipleNames: Object.fromEntries(disciples.filter((d) => present.has(d.id)).map((d) => [d.id, d.name])) },
       profile,
     )
     setSaving(false)
