@@ -129,7 +129,7 @@ export interface EvangelismRecord {
 
 // ---------- Follow-up ----------
 
-export type FollowUpStatus = 'scheduled' | 'completed' | 'missed' | 'rescheduled'
+export type FollowUpStatus = 'scheduled' | 'completed' | 'missed' | 'rescheduled' | 'postponed' | 'pending'
 
 export interface FollowUp {
   id: string
@@ -138,6 +138,10 @@ export interface FollowUp {
   workerId: string
   workerName: string
   scheduledDate: string
+  scheduledTime?: string
+  purpose?: string
+  method?: 'call' | 'whatsapp' | 'visit' | 'meeting' | 'other'
+  notes?: string
   completedDate?: string
   status: FollowUpStatus
   summary?: string
