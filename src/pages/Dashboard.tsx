@@ -172,12 +172,16 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.followUpsDueToday.length}</p><p className="text-xs text-slate-500">Follow-ups due today</p></div>
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.overdueFollowUps.length}</p><p className="text-xs text-slate-500">Overdue follow-ups</p></div>
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.missedMeetingDisciples.length}</p><p className="text-xs text-slate-500">Repeated meeting absences</p></div>
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.newConvertsNeedingFollowUp.length}</p><p className="text-xs text-slate-500">New converts to contact</p></div>
           </div>
           {stats.neglectedDisciples.length ? (
             <div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">No recent follow-up recorded (30+ days)</p>
               <div className="space-y-2">{stats.neglectedDisciples.map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.03]"><span className="min-w-0 truncate font-medium">{disciple.name}</span><span className="shrink-0 text-xs text-gold-700 dark:text-gold-400">Contact today →</span></Link>)}</div>
             </div>
-          ) : <p className="text-sm text-slate-500">No disciples currently meet the 30-day follow-up reminder threshold.</p>}
+          ) : <p className="text-sm text-slate-500">No disciples currently meet the {stats.followUpSettings.neglectAfterDays}-day follow-up reminder threshold.</p>}
+          {stats.newConvertsNeedingFollowUp.length > 0 && <div><p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">New converts needing a check-in</p><div className="flex flex-wrap gap-2">{stats.newConvertsNeedingFollowUp.map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="tag">{disciple.name}</Link>)}</div></div>}
+          {stats.missedMeetingDisciples.length > 0 && <div><p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Several meetings missed</p><div className="flex flex-wrap gap-2">{stats.missedMeetingDisciples.map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="tag">{disciple.name}</Link>)}</div></div>}
           <Link to="/follow-ups" className="link-u inline-flex text-xs font-semibold uppercase tracking-wide">Open follow-up tracker</Link>
         </div>
         <div className="card flex flex-col justify-between gap-4 p-5">
