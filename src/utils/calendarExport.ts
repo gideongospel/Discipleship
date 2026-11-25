@@ -58,7 +58,7 @@ export function downloadIcs(event: ChurchEvent) {
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `UID:${uid}`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\\.\d{3}/, '')}`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
     `DTSTART:${start}`,
     `DTEND:${end}`,
     `SUMMARY:${escapeIcs(event.title)}`,
