@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck,
-  ShieldCheck, Settings, BarChart3, LogOut, type IconType,
+  ShieldCheck, Settings, BarChart3, BookOpen, LogOut, type IconType,
 } from '../ui/icons'
 import { NAV_ITEMS } from '../../utils/nav'
 import { useAuth } from '../../context/AuthContext'
@@ -10,7 +10,7 @@ import Wordmark from '../brand/Wordmark'
 import Avatar from '../ui/Avatar'
 
 const ICONS: Record<string, IconType> = {
-  LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck, ShieldCheck, Settings, BarChart3,
+  LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck, ShieldCheck, Settings, BarChart3, BookOpen,
 }
 
 // Always ink-black, in light and dark mode alike — the brand's anchor.
@@ -36,7 +36,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             {items
               .filter((i) => i.group === group)
               .map((item) => {
-                const Icon = ICONS[item.icon]
+                const Icon = ICONS[item.icon] ?? BookOpen
                 return (
                   <NavLink
                     key={item.to}
