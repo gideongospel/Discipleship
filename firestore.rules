@@ -44,7 +44,18 @@ service cloud.firestore {
     match /meta/systemInfo {
       allow read: if true;
       allow create: if request.resource.data.adminCreated == true;
-      allow update, delete: if false;
+      // The Main Administrator can be claimed exactly once, and only by the
+      // authenticated account mapped to Worker ID 1156.
+      allow update: if isSignedIn()
+        && resource.data.adminCreated == true
+        && !('mainAdminUid' in resource.data)
+        && request.resource.data.mainAdminUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mainAdminUid', 'mainAdminAssignedAt'])
+        && get(/databases/$(database)/documents/loginIds/1156).data.uid == request.auth.uid
+        && get(userDocPath()).data.loginId == '1156'
+        && get(userDocPath()).data.role == 'administrator'
+        && get(userDocPath()).data.status == 'active';
+      allow delete: if false;
     }
 
     match /loginIds/{loginId} {
