@@ -8,7 +8,6 @@ import {
   serverTimestamp,
   updateDoc,
   where,
-  writeBatch,
   runTransaction,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
@@ -50,39 +49,49 @@ export async function createAttendanceSession(
   input: { serviceType: ServiceType; date: string; title?: string; presentDiscipleIds: string[]; presentDiscipleNames?: Record<string, string> },
   actor: AppUser,
 ) {
-  const sessionRef = doc(col)
-  const batch = writeBatch(db)
   const title = input.title || input.serviceType.replace(/_/g, ' ')
-  batch.set(sessionRef, {
-    ...input,
-    createdBy: actor.uid,
-    createdAt: serverTimestamp(),
-  })
-  for (const discipleId of Array.from(new Set(input.presentDiscipleIds))) {
-    const recordRef = doc(attendanceRecords, `${sessionRef.id}_${discipleId}`)
-    batch.set(recordRef, {
-      sessionId: sessionRef.id,
-      sessionTitle: title,
-      personId: discipleId,
-      personName: input.presentDiscipleNames?.[discipleId] || discipleId,
-      personType: 'disciple',
-      date: input.date,
-      recordedBy: actor.uid,
-      recordedByName: actor.name,
-      method: 'worker_recorded',
+  const titleKey = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').slice(0, 80)
+  const sessionId = `${input.serviceType}_${input.date}_${titleKey}`
+  const sessionRef = doc(col, sessionId)
+  const uniqueDiscipleIds = Array.from(new Set(input.presentDiscipleIds))
+
+  await runTransaction(db, async (transaction) => {
+    const existing = await transaction.get(sessionRef)
+    if (existing.exists()) {
+      throw new Error('Attendance has already been created for this meeting and date. Open the existing session instead.')
+    }
+    transaction.set(sessionRef, {
+      ...input,
+      presentDiscipleIds: uniqueDiscipleIds,
+      createdBy: actor.uid,
       createdAt: serverTimestamp(),
     })
-  }
-  await batch.commit()
+    for (const discipleId of uniqueDiscipleIds) {
+      const recordRef = doc(attendanceRecords, `${sessionId}_${discipleId}`)
+      transaction.set(recordRef, {
+        sessionId,
+        sessionTitle: title,
+        personId: discipleId,
+        personName: input.presentDiscipleNames?.[discipleId] || discipleId,
+        personType: 'disciple',
+        date: input.date,
+        recordedBy: actor.uid,
+        recordedByName: actor.name,
+        method: 'worker_recorded',
+        createdAt: serverTimestamp(),
+      })
+    }
+  })
+
   await logAudit({
     actorId: actor.uid,
     actorName: actor.name,
     action: 'create_attendance_session',
     targetType: 'attendanceSession',
-    targetId: sessionRef.id,
+    targetId: sessionId,
     details: `${input.serviceType} on ${input.date}`,
   })
-  return sessionRef.id
+  return sessionId
 }
 
 export async function recordSelfAttendance(session: AttendanceSession, actor: AppUser) {
