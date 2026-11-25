@@ -12,6 +12,7 @@ import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS, SERVICE_TYPE_LABELS } from
 export function useAnalyticsData() {
   const { profile } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [disciples, setDisciples] = useState<Disciple[]>([])
   const [evangelism, setEvangelism] = useState<EvangelismRecord[]>([])
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
@@ -23,6 +24,8 @@ export function useAnalyticsData() {
   useEffect(() => {
     if (!profile) return
     let cancelled = false
+    setLoading(true)
+    setError('')
     Promise.all([
       listDisciples(profile),
       listEvangelismRecords(profile),
@@ -40,8 +43,11 @@ export function useAnalyticsData() {
       setGeneralOutreach(outreach)
       setAttendanceRecords(attendance)
       setFollowUpSettings(thresholds)
-      setLoading(false)
-    })
+    }).catch((cause) => {
+      if (cancelled) return
+      console.error('Reports data loading failed:', cause)
+      setError(cause instanceof Error ? cause.message : 'Reports data could not be loaded. Check your Firebase access and try again.')
+    }).finally(() => { if (!cancelled) setLoading(false) })
     return () => {
       cancelled = true
     }
@@ -99,6 +105,7 @@ export function useAnalyticsData() {
 
   return {
     loading,
+    error,
     disciples,
     evangelism,
     followUps,
