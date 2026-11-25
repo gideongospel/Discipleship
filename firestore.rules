@@ -108,6 +108,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /appSettings/{settingId} {
+      allow read: if isActive();
+      allow create, update, delete: if isAdmin();
+    }
+
     match /churchResources/{resourceId} {
       allow read: if isAdmin() || (isActive() && resource.data.status == 'published');
       allow create: if isAdmin();
