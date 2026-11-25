@@ -90,7 +90,7 @@ export default function Reports() {
     + selectedEvangelism.filter((item) => item.outcome === 'salvation').length
   const referenceDate = month ? new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0) : new Date(Number(year), 11, 31)
   const attentionCutoff = new Date(referenceDate)
-  attentionCutoff.setDate(attentionCutoff.getDate() - 30)
+  attentionCutoff.setDate(attentionCutoff.getDate() - stats.followUpSettings.neglectAfterDays)
   const attentionDate = `${attentionCutoff.getFullYear()}-${String(attentionCutoff.getMonth() + 1).padStart(2, '0')}-${String(attentionCutoff.getDate()).padStart(2, '0')}`
   const neglected = stats.disciples.filter((disciple) => {
     const last = disciple.lastFollowUpDate || disciple.dateFirstContacted
@@ -121,7 +121,7 @@ export default function Reports() {
       ['Follow-ups scheduled/recorded', String(scheduledCount)],
       ['Follow-ups completed', String(completedCount)],
       ['New disciples reached (recorded)', String(newDisciplesReached)],
-      ['Disciples needing attention (30+ days)', String(neglected.length)],
+      ['Disciples needing attention', String(neglected.length)],
       [],
       ['Date', 'Activity', 'Worker / submitter', 'Details'],
       ...selectedSessions.map((item) => [item.date, item.title || item.serviceType, item.createdBy, `${item.presentDiscipleIds.length} present`]),
@@ -161,7 +161,7 @@ export default function Reports() {
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           <div><h3 className="mb-2 text-sm font-semibold">Follow-up activity</h3><p className="text-sm text-slate-600 dark:text-slate-300">{completedCount} completed out of {scheduledCount} recorded follow-ups. {scheduledCount - completedCount} remain pending, postponed or missed.</p></div>
-          <div><h3 className="mb-2 text-sm font-semibold">Areas requiring attention</h3><p className="text-sm text-slate-600 dark:text-slate-300">{neglected.length} disciples have no recorded follow-up within the selected reporting period. Review individual histories before deciding what support is needed.</p></div>
+          <div><h3 className="mb-2 text-sm font-semibold">Areas requiring attention</h3><p className="text-sm text-slate-600 dark:text-slate-300">{neglected.length} disciples have no recorded follow-up for at least {stats.followUpSettings.neglectAfterDays} days at the reporting period end. Review individual histories before deciding what support is needed.</p></div>
         </div>
       </Panel>
 
