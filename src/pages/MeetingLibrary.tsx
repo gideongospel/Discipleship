@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { BookOpen, Check, Copy, Plus, Share2, X } from '../components/ui/icons'
+import { Check, Download, Plus, X } from '../components/ui/icons'
 import { useAuth } from '../context/AuthContext'
 import {
   createChurchResource,
@@ -121,7 +121,7 @@ export default function MeetingLibrary() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3 dark:border-white/10">
-                  <button className="btn-secondary !py-2 !text-xs" onClick={() => share(item)}>{copied === item.id ? <Check size={14} /> : <Share2 size={14} />}{copied === item.id ? 'Copied' : 'Share / copy'}</button>
+                  <button className="btn-secondary !py-2 !text-xs" onClick={() => share(item)}>{copied === item.id ? <Check size={14} /> : <Download size={14} />}{copied === item.id ? 'Copied' : 'Share / copy'}</button>
                   {isAdmin && <button className="btn-secondary !py-2 !text-xs" onClick={() => { setEditing(item); setShowForm(true) }}>Edit</button>}
                   {isAdmin && item.status === 'draft' && <button className="btn-primary !py-2 !text-xs" onClick={() => changeStatus(item, 'published')}>Publish</button>}
                   {isAdmin && item.status === 'published' && <button className="btn-secondary !py-2 !text-xs" onClick={() => changeStatus(item, 'archived')}>Archive</button>}
