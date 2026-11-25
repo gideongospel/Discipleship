@@ -139,7 +139,7 @@ export default function DiscipleProfile() {
   )
 }
 
-function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
+function whatsappNumber(phone: string) {\n  let digits = phone.replace(/\\D/g, '')\n  if (digits.length === 11 && digits.startsWith('0')) digits = `234${digits.slice(1)}`\n  return digits\n}\n\nfunction InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="border-slate-200 px-6 py-6 max-sm:pl-0 max-sm:[&:nth-child(n+2)]:border-t sm:border-l sm:first:border-l-0 sm:first:pl-0 dark:border-white/[0.09]">
       <p className="mb-3 font-brand text-[0.6rem] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
