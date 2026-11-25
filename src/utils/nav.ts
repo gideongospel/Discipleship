@@ -15,6 +15,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/disciples/new', label: 'New Registration', icon: 'UserPlus', roles: ['administrator', 'worker'], group: 'People' },
   { to: '/evangelism', label: 'Disciple Outreach', icon: 'Megaphone', roles: ['administrator', 'worker'], group: 'Ministry' },
   { to: '/outreach-activities', label: 'General Evangelism', icon: 'Megaphone', roles: ['administrator', 'worker'], group: 'Ministry' },
+  { to: '/resources', label: 'Spiritual Resources', icon: 'Megaphone', roles: ['administrator', 'worker'], group: 'Ministry' },
   { to: '/follow-ups', label: 'Follow-ups', icon: 'CalendarClock', roles: ['administrator', 'worker'], group: 'Ministry' },
   { to: '/attendance', label: 'Attendance', icon: 'ClipboardCheck', roles: ['administrator', 'worker'], group: 'Ministry' },
   { to: '/reports', label: 'Reports', icon: 'BarChart3', roles: ['administrator', 'worker'], group: 'Insight' },
