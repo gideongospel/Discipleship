@@ -6,6 +6,7 @@ import TopBar from './TopBar'
 import BottomNav from './BottomNav'
 import CommandPalette from './CommandPalette'
 import DoorsMark from '../brand/DoorsMark'
+import NotificationPopups from './NotificationPopups'
 
 export default function Layout() {
   const [drawer, setDrawer] = useState(false)
@@ -58,6 +59,7 @@ export default function Layout() {
 
       <BottomNav onMore={() => setDrawer(true)} />
       <CommandPalette open={palette} onClose={() => setPalette(false)} />
+      <NotificationPopups />
     </div>
   )
 }
