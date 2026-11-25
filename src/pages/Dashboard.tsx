@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { greeting, longDate, daysFromToday, relativeDay } from '../utils/format'
 import { SPIRITUAL_STATUS_LABELS, type SpiritualStatus } from '../types'
 import { statusBadgeColor } from '../utils/constants'
+import { downloadIcs, googleCalendarUrl } from '../utils/calendarExport'
 
 // The path a disciple walks, in order.
 const JOURNEY: { key: SpiritualStatus; label: string }[] = [
@@ -130,6 +131,29 @@ export default function Dashboard() {
             )
           })}
         </ol>
+      </section>
+
+      {/* Church calendar */}
+      <section>
+        <div className={`mb-5 flex items-baseline justify-between border-b pb-3 ${rule}`}>
+          <div><p className="eyebrow">Church calendar</p><h2 className="mt-2 font-display text-xl font-medium">Upcoming meetings &amp; programmes</h2></div>
+          <Link to="/events" className="link-u text-xs font-semibold uppercase tracking-[0.14em]">All events</Link>
+        </div>
+        {stats.upcomingEvents.length === 0 ? (
+          <p className="py-4 text-sm text-slate-500">No published upcoming events.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {stats.upcomingEvents.map((event) => (
+              <article key={event.id} className="card flex flex-col justify-between gap-3 p-4">
+                <div><p className="eyebrow">{event.date} · {event.startTime}</p><h3 className="mt-1 font-display text-lg">{event.title}</h3><p className="mt-1 text-xs text-slate-500">{event.venue || 'Venue to be announced'}</p></div>
+                <div className="flex flex-wrap gap-2">
+                  <button className="btn-secondary !px-2.5 !py-1.5 !text-xs" onClick={() => window.open(googleCalendarUrl(event), '_blank', 'noopener,noreferrer')}>Add to Google Calendar</button>
+                  <button className="btn-secondary !px-2.5 !py-1.5 !text-xs" onClick={() => downloadIcs(event)}>Download .ics</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Two ledgers */}
