@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, CalendarClock, X } from '../ui/icons'
+import { AlertTriangle, CalendarClock, Download, X } from '../ui/icons'
 import { useAuth } from '../../context/AuthContext'
 import { listFollowUps } from '../../services/followUpService'
 import { listChurchEvents } from '../../services/churchEventService'
+import { listChurchResources } from '../../services/churchResourceService'
 import { daysFromToday } from '../../utils/format'
 
 interface AppAlert {
@@ -12,7 +13,7 @@ interface AppAlert {
   message: string
   path: string
   priority: 'important' | 'normal'
-  kind: 'follow-up' | 'event'
+  kind: 'follow-up' | 'event' | 'resource'
 }
 
 function seenKey(uid: string) {
@@ -42,7 +43,7 @@ export default function NotificationPopups() {
     let cancelled = false
 
     async function load() {
-      const [followUps, events] = await Promise.all([listFollowUps(profile!), listChurchEvents(false)])
+      const [followUps, events, resources] = await Promise.all([listFollowUps(profile!), listChurchEvents(false), listChurchResources(profile!, false)])
       if (cancelled) return
       const candidates: AppAlert[] = []
 
@@ -70,6 +71,19 @@ export default function NotificationPopups() {
           path: '/events',
           priority: 'normal',
           kind: 'event',
+        })
+      }
+
+      for (const resource of resources) {
+        const days = daysFromToday(resource.date)
+        if (days < 0 || days > 2) continue
+        candidates.push({
+          id: `resource:${resource.id}:${resource.date}`,
+          title: resource.type === 'meeting_excerpt' ? 'New teaching highlight' : 'Church prayer focus',
+          message: resource.title,
+          path: '/meeting-library',
+          priority: 'normal',
+          kind: 'resource',
         })
       }
 
@@ -101,7 +115,7 @@ export default function NotificationPopups() {
         <article key={alert.id} className="card animate-rise border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-slate-900">
           <div className="flex items-start gap-3">
             <span className={`mt-0.5 ${alert.priority === 'important' ? 'text-amber-600 dark:text-amber-400' : 'text-gold-600 dark:text-gold-400'}`}>
-              {alert.kind === 'follow-up' ? <AlertTriangle size={18} /> : <CalendarClock size={18} />}
+              {alert.kind === 'follow-up' ? <AlertTriangle size={18} /> : alert.kind === 'event' ? <CalendarClock size={18} /> : <Download size={18} />}
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{alert.title}</p>
