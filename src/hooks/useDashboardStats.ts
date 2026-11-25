@@ -51,11 +51,11 @@ export function useDashboardStats() {
     ['initially_saved', 'saved_through_us', 'saved_and_filled_through_us'].includes(d.spiritualStatus),
   ).length
 
-  const activeFollowUps = followUps.filter((f) => f.status === 'scheduled').length
+  const activeFollowUps = followUps.filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status)).length
 
   const today = new Date().toISOString().slice(0, 10)
   const upcomingFollowUps = followUps
-    .filter((f) => f.status === 'scheduled' && f.scheduledDate >= today)
+    .filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status) && f.scheduledDate >= today)
     .slice(0, 5)
 
   const recentDisciples = [...disciples]
