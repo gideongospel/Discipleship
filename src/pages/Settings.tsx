@@ -1,12 +1,37 @@
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { useGoogleCalendar } from '../context/GoogleCalendarContext'
 import { CalendarCheck } from '../components/ui/icons'
+import { DEFAULT_FOLLOW_UP_SETTINGS, getFollowUpSettings, saveFollowUpSettings, type FollowUpSettings } from '../services/followUpSettingsService'
 
 export default function Settings() {
   const { profile } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const calendar = useGoogleCalendar()
+  const [followUpSettings, setFollowUpSettings] = useState<FollowUpSettings>(DEFAULT_FOLLOW_UP_SETTINGS)
+  const [settingsSaving, setSettingsSaving] = useState(false)
+  const [settingsMessage, setSettingsMessage] = useState('')
+
+  useEffect(() => {
+    if (profile?.role !== 'administrator') return
+    getFollowUpSettings().then(setFollowUpSettings).catch(() => setSettingsMessage('Unable to load follow-up settings.'))
+  }, [profile])
+
+  const saveSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!profile || profile.role !== 'administrator') return
+    setSettingsSaving(true)
+    setSettingsMessage('')
+    try {
+      await saveFollowUpSettings(followUpSettings, profile)
+      setSettingsMessage('Follow-up thresholds saved.')
+    } catch {
+      setSettingsMessage('Unable to save settings. Check your connection and permissions.')
+    } finally {
+      setSettingsSaving(false)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -62,6 +87,16 @@ export default function Settings() {
           </button>
         )}
       </div>
+
+      {profile?.role === 'administrator' && (
+        <form onSubmit={saveSettings} className="card space-y-4 p-5">
+          <div><h2 className="font-display text-xl font-medium">Shepherding thresholds</h2><p className="mt-1 text-xs text-slate-500">These settings guide reminders only. They do not rate spiritual maturity or faithfulness.</p></div>
+          <label className="block text-sm">Flag a disciple when no follow-up is recorded for (days)<input className="input mt-1" type="number" min="1" max="365" required value={followUpSettings.neglectAfterDays} onChange={(event) => setFollowUpSettings((current) => ({ ...current, neglectAfterDays: Number(event.target.value) }))} /></label>
+          <label className="block text-sm">Missed meetings before a reminder<input className="input mt-1" type="number" min="1" max="20" required value={followUpSettings.missedMeetingThreshold} onChange={(event) => setFollowUpSettings((current) => ({ ...current, missedMeetingThreshold: Number(event.target.value) }))} /></label>
+          <label className="block text-sm">New convert follow-up interval (days)<input className="input mt-1" type="number" min="1" max="60" required value={followUpSettings.newConvertFollowUpDays} onChange={(event) => setFollowUpSettings((current) => ({ ...current, newConvertFollowUpDays: Number(event.target.value) }))} /></label>
+          <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-slate-500">{settingsMessage}</p><button className="btn-primary" disabled={settingsSaving}>{settingsSaving ? 'Saving…' : 'Save thresholds'}</button></div>
+        </form>
+      )}
 
       <div className="card p-5">
         <h2 className="mb-3 font-display text-xl font-medium">Appearance</h2>
