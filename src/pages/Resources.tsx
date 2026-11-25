@@ -20,6 +20,136 @@ const paulinePrayers: Resource[] = [
   { id: 'col1', category: 'Fruitfulness and wisdom', title: 'Prayer for knowledge of God’s will', reference: 'Colossians 1:9–14', body: 'Father, fill us with the knowledge of Your will in all wisdom and spiritual understanding. Teach us to walk worthy of You, pleasing You in every good work, increasing in the knowledge of God. Strengthen us with Your glorious power for patience, endurance and joy, and keep us thankful for the redemption we have in Christ. Amen.' },
   { id: '1thess3', category: 'Love and holiness', title: 'Prayer for abundant love and steadfast hearts', reference: '1 Thessalonians 3:12–13', body: 'Lord, make our love increase and overflow toward one another and toward all people. Establish our hearts blameless in holiness before You, and teach us to live in readiness and faithfulness before the coming of our Lord Jesus Christ. Amen.' },
   { id: '2thess1', category: 'Faith and perseverance', title: 'Prayer that God fulfils every good purpose', reference: '2 Thessalonians 1:11–12', body: 'God, count us worthy of Your calling. Fulfil every good purpose and work of faith by Your power. Let the name of our Lord Jesus be glorified in us, and let our lives reflect His grace, for the glory of our God and the Lord Jesus Christ. Amen.' },
+
+  { id: 'inheritance-in-christ', category: 'Inheritance in Christ', title: 'Knowing the riches of our inheritance in Christ', reference: 'Ephesians 1:3–14; Ephesians 1:15–23; Romans 8:14–17; Colossians 1:12–14', body: `TEACHING
+
+The Christian life begins with what God has done in Christ, not with what we can achieve by religious effort. Ephesians 1 opens by blessing God because He has blessed believers with every spiritual blessing in heavenly places in Christ. The passage describes adoption, acceptance in the Beloved, redemption through Christ’s blood, forgiveness, the revelation of God’s purpose, and the sealing of the Holy Spirit. These are not wages earned by spiritual performance; they are gifts of grace received in union with Christ.
+
+Our inheritance is both present and future. We have already been brought into God’s family and given the Spirit as the earnest (guarantee) of our inheritance (Ephesians 1:13–14; Romans 8:15–17). We are also waiting for the full redemption of our bodies and the consummation of what God has promised (Romans 8:23; 1 Peter 1:3–5). This hope gives stability in suffering and courage in service.
+
+Paul does not merely ask that believers receive more things; he prays that the eyes of their understanding will be enlightened so they may know the hope of God’s calling, the riches of His inheritance in the saints, and the immeasurable greatness of His power toward believers (Ephesians 1:17–20). We therefore need revelation of what is already ours in Christ, so that fear, inferiority, and worldly definitions of success do not govern us.
+
+CHRIST-CENTRED EMPHASIS
+
+Every blessing in this passage is located in Christ. He is the Beloved in whom we are accepted, the Redeemer through whose blood we have forgiveness, and the risen Lord exalted above every rule and authority. Our confidence is not in our own strength but in the same mighty power God displayed when He raised Christ from the dead (Ephesians 1:19–23).
+
+PRAYER
+
+Father, God of our Lord Jesus Christ, give us the spirit of wisdom and revelation in the knowledge of You. Enlighten the eyes of our understanding. Cause us to know the hope of Your calling, the riches of the glory of Your inheritance in the saints, and the exceeding greatness of Your power toward us who believe. Establish our hearts in our adoption, redemption, forgiveness, and acceptance in Christ. Let the reality of our inheritance shape our choices, courage, holiness, generosity, and service. Keep our hope fixed on Jesus, in whose name we pray. Amen.
+
+PRAY THROUGH
+
+Read Ephesians 1:3–14 slowly. Identify each blessing that is explicitly said to be in Christ. Then pray Ephesians 1:17–23 for the church, naming areas where believers need enlightened understanding.` },
+  { id: 'gospel-boldness', category: 'Gospel courage and endurance', title: 'Boldness, clarity and endurance in the gospel', reference: 'Ephesians 6:18–20; Colossians 4:2–4; 2 Thessalonians 3:1–5; 2 Timothy 1:7–14', body: `TEACHING
+
+Paul understood gospel ministry as a stewardship entrusted to him by God. Even while imprisoned, he asked the churches to pray that utterance would be given to him, that he might open his mouth boldly to make known the mystery of the gospel (Ephesians 6:19–20). His request teaches us that boldness is not self-confidence, aggression, or a desire to win arguments. It is Spirit-dependent courage to speak the truth of Christ clearly, lovingly, and without shame.
+
+Colossians 4:3–4 joins two important requests: that God would open a door for the word, and that Paul would make the message clear. We should pray both for opportunities and for faithfulness in using them. An open door without clarity can be wasted; eloquence without love can wound hearers. The gospel itself remains the power of God unto salvation (Romans 1:16).
+
+In 2 Thessalonians 3:1–5 Paul asks that the word of the Lord may have free course and be glorified, and that believers be delivered from unreasonable and wicked men. He then directs their hearts into the love of God and the patient waiting for Christ. Gospel courage therefore belongs with prayer, protection, love, patience, and obedience.
+
+PRAYER
+
+Lord Jesus, make us unashamed of Your gospel. Open doors for Your word among our families, neighbourhoods, workplaces, schools, and communities. Give us utterance and clarity to make the mystery of Christ known. Deliver us from fear of people, from compromise, and from the temptation to alter the message for acceptance. Let Your word run swiftly and be honoured. Strengthen those who preach, teach, translate, serve, and witness under pressure. Guard them from unreasonable and wicked opposition, and keep their hearts in the love of God and the patience of Christ. Make our conduct worthy of the gospel we proclaim. Amen.
+
+PRAY THROUGH
+
+Pray by name for gospel workers and for people who have not yet believed. Ask for an open door (Colossians 4:3), a clear message (Colossians 4:4), boldness (Ephesians 6:19–20), and protection (2 Thessalonians 3:2).` },
+  { id: 'comfort-in-trouble', category: 'Comfort and strengthening', title: 'Comfort for the afflicted and strength to endure', reference: '2 Corinthians 1:3–7; Ephesians 3:14–21; Philippians 4:6–9; 2 Thessalonians 2:16–17', body: `TEACHING
+
+Paul calls God “the Father of mercies, and the God of all comfort” (2 Corinthians 1:3). God’s comfort is not a denial that pain is real. Paul speaks honestly about affliction, pressure, and despair, yet testifies that God comforted him so that he could comfort others. The comfort received from God becomes a ministry we extend to people who suffer.
+
+In Ephesians 3:14–21, Paul prays for believers who already belong to Christ. He asks the Father to strengthen them with might by His Spirit in the inner person, that Christ may dwell in their hearts by faith, and that they may be rooted and grounded in love. Christian strength is not merely the ability to endure difficult circumstances; it is inward strengthening through the Spirit and a deeper grasp of Christ’s love.
+
+Philippians 4:6–9 does not instruct sufferers to pretend everything is fine. It invites them to bring every concern to God with prayer, supplication, and thanksgiving. God’s peace guards hearts and minds in Christ Jesus. Paul also teaches believers to direct their minds toward what is true, honest, just, pure, lovely, and worthy of praise.
+
+PRAYER
+
+Father of mercies and God of all comfort, draw near to those who are grieving, anxious, exhausted, sick, persecuted, or overwhelmed. Strengthen them by Your Spirit in the inner person. Let the love of Christ become more real to them than the weight of their present trouble. Give wisdom for decisions, grace to ask for help, and people who will listen without judging. Guard hearts and minds with Your peace in Christ Jesus. Make us a community that bears burdens, speaks truth gently, and comforts others with the comfort we have received from You. Amen.
+
+PASTORAL CARE
+
+Prayer should be accompanied by practical love. Listen carefully, respect confidentiality, help with genuine needs, and encourage appropriate medical, counselling, or professional support when needed (Galatians 6:2; Romans 12:15; James 2:15–17). Do not use these passages to shame someone who is suffering.` },
+  { id: 'provision-contentment', category: 'God’s provision and contentment', title: 'Trusting the Father for provision and learning contentment', reference: 'Philippians 4:10–20; 2 Corinthians 9:6–11; Matthew 6:25–34; 1 Timothy 6:6–10, 17–19', body: `TEACHING
+
+Philippians 4:19 is often quoted on its own, but its setting matters. Paul is thanking the Philippians for their generous partnership in his ministry. He has learned contentment in abundance and in need (Philippians 4:11–13), and he assures them that God will supply their need according to His riches in glory by Christ Jesus. This is not a promise that every believer will receive every desired luxury or become wealthy. It is confidence in God’s faithful care, expressed in a passage about generosity, partnership, and contentment.
+
+Jesus teaches us not to be consumed by anxious striving for food and clothing, because our heavenly Father knows what we need (Matthew 6:25–34). He calls us to seek first God’s kingdom and righteousness. Second Corinthians 9:6–11 connects provision with generosity: God supplies seed to the sower and bread for food, enabling believers to abound in good works. Provision is not merely for private accumulation; it equips us to serve and share.
+
+The church should therefore pray for daily needs, honest work, wisdom, open doors, relief for those in hardship, and freedom from greed. We should also become part of God’s practical answer through generosity, fair dealing, employment opportunities, hospitality, and care for the vulnerable.
+
+PRAYER
+
+Our Father, You know what we need before we ask. Provide daily bread, honest employment, wisdom in stewardship, strength to work, and help in seasons of lack. Give relief to families under financial pressure and provide through just and compassionate means. Deliver us from greed, waste, dishonest gain, and anxious comparison. Teach us contentment in every circumstance and make us generous toward others. Supply what is needed for the work of the gospel, and let Your provision produce thanksgiving and good works through Jesus Christ. Amen.
+
+PRAY THROUGH
+
+Name practical needs before God. Then ask: What responsibility, wise step, or act of generosity is God calling us to take? Read Philippians 4:10–20 in full so that verse 19 remains connected to contentment and partnership in the gospel.` },
+  { id: 'deliverance-protection', category: 'Protection and deliverance', title: 'Deliverance from danger and from wicked opposition', reference: '2 Thessalonians 3:1–5; Romans 15:30–33; 2 Corinthians 1:8–11; 2 Timothy 4:16–18; Psalm 91', body: `TEACHING
+
+The New Testament does not hide the reality of danger. Paul faced violent opposition, imprisonment, threats, hardship, and situations in which he despaired even of life (2 Corinthians 1:8–11). He asked churches to strive together with him in prayer for deliverance (Romans 15:30–33). In 2 Thessalonians 3:1–2, he asks prayer both for the progress of the gospel and for deliverance from unreasonable and wicked people.
+
+God’s protection does not mean believers will never suffer. Paul also records occasions when he was beaten, imprisoned, and exposed to danger (2 Corinthians 11:23–28). Yet he testifies that the Lord stood by him and strengthened him (2 Timothy 4:16–18). Biblical prayer asks boldly for rescue while trusting God’s wisdom when the path includes suffering. Psalm 91 gives language of refuge and confidence in God; it should not be turned into a formula that guarantees a trouble-free life.
+
+Pray for protection from violence, exploitation, deception, accidents, unjust treatment, and every form of wicked opposition. Pray also for discernment, wise decisions, lawful help, safe travel, and courage to seek refuge when danger is immediate. Do not confuse deliverance with retaliation; believers are commanded to overcome evil with good (Romans 12:17–21).
+
+PRAYER
+
+Faithful Lord, be our refuge and strength, a very present help in trouble. Deliver Your people from violent and wicked opposition, from traps and deception, from unjust accusations, and from dangers seen and unseen. Preserve those travelling, serving, preaching, and caring for others. Give discernment to recognise danger and wisdom to take safe and responsible action. Strengthen those facing threats; provide timely help, trustworthy companions, and just intervention. When we pass through hardship, stand by us and keep us faithful to Christ. Make us courageous without becoming vengeful, and peaceful without becoming careless. Amen.
+
+PRAY THROUGH
+
+Pray for specific people, journeys, ministries, and vulnerable communities. Ask God for protection and also for practical wisdom, accountability, and appropriate help. Read 2 Corinthians 1:8–11 and 2 Timothy 4:16–18 together to see both the reality of danger and the Lord’s sustaining faithfulness.` },
+  { id: 'spiritual-fervency', category: 'Spiritual fervency', title: 'Fervent in spirit, serving the Lord', reference: 'Romans 12:1–12; Colossians 4:2; 1 Thessalonians 5:16–24; 2 Timothy 1:6–7', body: `TEACHING
+
+Romans 12 begins with the mercies of God. Paul calls believers to present their bodies as living sacrifices and to be transformed by the renewing of their minds (Romans 12:1–2). In that context he says, “not slothful in business; fervent in spirit; serving the Lord” (Romans 12:11, KJV). Fervency is not noise, emotional excitement, or constant activity. It is an earnest, Spirit-shaped devotion that expresses itself in service, prayer, generosity, patience, and love.
+
+Colossians 4:2 says to continue in prayer, watching in the same with thanksgiving. First Thessalonians 5:16–24 joins joy, prayer, thanksgiving, discernment, holiness, and dependence on the God who sanctifies. Second Timothy 1:6–7 urges Timothy to stir up the gift of God and reminds him that God has given a spirit not of fear, but of power, love, and a sound mind.
+
+Spiritual fire must remain governed by Scripture and love. Zeal without knowledge can harm; activity without love becomes empty (Romans 10:2; 1 Corinthians 13:1–3). We ask God for renewed devotion that produces obedience and Christlike character.
+
+PRAYER
+
+Lord, renew our devotion to You. Deliver us from spiritual laziness, distraction, coldness, and the desire for appearance without obedience. By Your Spirit, make us fervent in spirit and diligent in serving the Lord. Restore delight in Your Word, constancy in prayer, love for Your people, compassion for the lost, and joy in doing Your will. Stir up the gifts You have entrusted to us and govern every zeal with truth, humility, love, and a sound mind. Let our private devotion and public service honour Jesus. Amen.
+
+PRACTICE
+
+Choose a sustainable rhythm: Scripture, prayer, fellowship, obedience, and service. Do not measure spiritual life only by feelings. Ask what faithful obedience looks like today (James 1:22–25; Galatians 5:22–25).` },
+  { id: 'godly-desires', category: 'Renewed desires and holiness', title: 'Ignite holy desires and shape our will after God', reference: 'Philippians 2:12–13; Psalm 63:1–8; Psalm 119:33–40; Galatians 5:16–25; 2 Thessalonians 1:11–12', body: `TEACHING
+
+Philippians 2:12–13 holds human responsibility and divine working together: believers are called to work out their salvation with reverence, because God works in them both to will and to do of His good pleasure. The passage does not teach that we earn salvation. It teaches that the God who saves is also at work shaping our desires and actions.
+
+We can ask God not only to change our circumstances but to change what we love. Psalm 63 describes a soul thirsting for God; Psalm 119 repeatedly asks the Lord to incline the heart toward His testimonies and away from covetousness. Galatians 5 contrasts the works of the flesh with the fruit of the Spirit. Renewed desire is therefore not simply wanting religious experiences; it is growing love for Christ, truth, holiness, justice, mercy, prayer, Scripture, and the good of others.
+
+Second Thessalonians 1:11–12 gives a deeply Pauline pattern: that God would fulfil every good resolve and work of faith by His power, so that the name of Jesus may be glorified in believers. We pray for desires that God Himself approves and for power to put those desires into practice.
+
+PRAYER
+
+Father, work in us both to will and to do of Your good pleasure. Reorder our loves. Give us hunger for Your Word, delight in prayer, affection for Christ, hatred of sin, compassion for people, and willingness to obey when obedience is costly. Turn our hearts from empty distractions, envy, greed, lust, bitterness, and the craving for human applause. Fulfil every good purpose and every work of faith by Your power, so that Jesus may be glorified in us. Amen.
+
+REFLECTION
+
+Ask: What desire is shaping my decisions? Does it agree with the character and teaching of Christ? What habit, relationship, or practice needs to change so that a godly desire can become obedient action?` },
+  { id: 'steadfast-under-pressure', category: 'Perseverance and gospel labour', title: 'Steadfastness when the work is difficult', reference: '2 Corinthians 4:1–18; 1 Corinthians 15:58; Galatians 6:9–10; 2 Timothy 2:1–13', body: `TEACHING
+
+Paul’s ministry was marked by hardship, but he says, “seeing we have this ministry, as we have received mercy, we faint not” (2 Corinthians 4:1, KJV). He describes being troubled but not distressed, perplexed but not in despair, persecuted but not forsaken, cast down but not destroyed (2 Corinthians 4:8–9). The treasure is the gospel; the power belongs to God, not to the human messenger (2 Corinthians 4:7).
+
+Paul fixes attention beyond temporary affliction to the eternal weight of glory (2 Corinthians 4:16–18). This does not make suffering unreal; it places suffering within the larger hope of resurrection and the coming renewal. In 1 Corinthians 15:58, the assurance of resurrection leads directly to steadfast labour: our labour is not in vain in the Lord.
+
+Galatians 6:9–10 calls believers not to grow weary in doing good. Second Timothy 2:1–13 calls servants of Christ to be strengthened by grace and endure hardship. Perseverance is not stubborn self-reliance; it is sustained faithfulness through the grace of Christ.
+
+PRAYER
+
+Lord Jesus, strengthen every weary worker and believer. When we are troubled, keep us from despair; when we are opposed, remind us that we are not forsaken. Renew our inward person day by day. Keep our eyes fixed on the risen Christ and the eternal hope You have promised. Give us endurance to preach, disciple, serve, forgive, give, and do good without surrendering to discouragement. Let us be steadfast, unmoveable, and always abounding in Your work, knowing that our labour is not in vain in You. Amen.` },
+  { id: 'church-love-unity', category: 'Church love and unity', title: 'A church established in love, truth and mutual care', reference: 'Ephesians 4:1–16; Philippians 2:1–5; Colossians 3:12–17; Romans 15:5–7', body: `TEACHING
+
+Paul’s vision of the church is not a crowd of isolated believers but one body joined to Christ the Head. Ephesians 4 calls the church to walk in humility, meekness, patience, and love, endeavouring to keep the unity of the Spirit in the bond of peace. Unity is not pretending that differences or problems do not exist. It is a Spirit-created reality that believers are responsible to preserve through truth, humility, forgiveness, and patient love.
+
+Ephesians 4:11–16 teaches that Christ gives ministry gifts to equip the saints for the work of service, so that the body grows toward maturity. Healthy ministry does not make people dependent on one personality; it equips the whole body to grow in Christ. Colossians 3:12–17 describes the practical clothing of the new life: compassion, kindness, humility, meekness, patience, forgiveness, love, peace, gratitude, and the word of Christ dwelling richly.
+
+PRAYER
+
+Lord Jesus, Head of the church, establish us in truth and love. Clothe us with compassion, humility, patience, forgiveness, and kindness. Heal divisions, expose harmful pride, and teach us to speak the truth in love. Equip every believer to serve, and help our leaders equip rather than control. Let the word of Christ dwell richly among us, and let our unity make the beauty of the gospel visible. Amen.` },
 ]
 
 const scriptures: Resource[] = [
