@@ -87,6 +87,20 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "outreachActivities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "workerIds",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "date",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ]
 }
