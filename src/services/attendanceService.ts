@@ -47,7 +47,7 @@ export async function listAttendanceRecords(personId: string): Promise<Attendanc
 }
 
 export async function createAttendanceSession(
-  input: { serviceType: ServiceType; date: string; title?: string; presentDiscipleIds: string[] },
+  input: { serviceType: ServiceType; date: string; title?: string; presentDiscipleIds: string[]; presentDiscipleNames?: Record<string, string> },
   actor: AppUser,
 ) {
   const sessionRef = doc(col)
@@ -64,7 +64,7 @@ export async function createAttendanceSession(
       sessionId: sessionRef.id,
       sessionTitle: title,
       personId: discipleId,
-      personName: discipleId,
+      personName: input.presentDiscipleNames?.[discipleId] || discipleId,
       personType: 'disciple',
       date: input.date,
       recordedBy: actor.uid,
