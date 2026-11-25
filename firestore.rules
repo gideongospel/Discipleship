@@ -62,7 +62,10 @@ service cloud.firestore {
       allow get: if true;
       allow list: if false;
       allow create: if isAdmin() || !systemInitialized();
-      allow update: if isAdmin();
+      allow update: if isAdmin()
+        && !(loginId == '1156'
+          && exists(/databases/$(database)/documents/meta/systemInfo)
+          && 'mainAdminUid' in get(/databases/$(database)/documents/meta/systemInfo).data);
       allow delete: if false;
     }
 
@@ -72,10 +75,18 @@ service cloud.firestore {
         || (request.auth.uid == uid
             && request.resource.data.role == 'administrator'
             && !systemInitialized());
-      allow update: if isAdmin()
+      // Once assigned, the Main Administrator profile cannot be demoted,
+      // suspended, deleted or have its Worker ID changed by another admin.
+      allow update: if (isAdmin()
+          && (!exists(/databases/$(database)/documents/meta/systemInfo)
+            || !('mainAdminUid' in get(/databases/$(database)/documents/meta/systemInfo).data)
+            || uid != get(/databases/$(database)/documents/meta/systemInfo).data.mainAdminUid))
         || (isActive() && request.auth.uid == uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt']));
-      allow delete: if isAdmin();
+      allow delete: if isAdmin()
+        && (!exists(/databases/$(database)/documents/meta/systemInfo)
+          || !('mainAdminUid' in get(/databases/$(database)/documents/meta/systemInfo).data)
+          || uid != get(/databases/$(database)/documents/meta/systemInfo).data.mainAdminUid);
     }
 
     match /disciples/{id} {
