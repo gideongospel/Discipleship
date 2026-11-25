@@ -18,6 +18,7 @@ import AttendanceSheet from './pages/attendance/AttendanceSheet'
 import Reports from './pages/Reports'
 import AdminPanel from './pages/admin/AdminPanel'
 import Settings from './pages/Settings'
+import Events from './pages/Events'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
                     <Route path="/evangelism" element={<EvangelismLog />} />
                     <Route path="/follow-ups" element={<FollowUpTracker />} />
                     <Route path="/attendance" element={<AttendanceSheet />} />
+                    <Route path="/events" element={<Events />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/settings" element={<Settings />} />
 
