@@ -39,6 +39,14 @@ export default function Reports() {
   const [month, setMonth] = useState(currentMonth)
   const [year, setYear] = useState(currentYear)
   const [worker, setWorker] = useState('all')
+  const workerOptions = useMemo(() => {
+    const names = new Map<string, string>()
+    stats.followUps.forEach((item) => names.set(item.workerId, item.workerName))
+    stats.evangelism.forEach((item) => names.set(item.evangelistId, item.evangelistName))
+    stats.generalOutreach.forEach((item) => item.workerIds.forEach((id, index) => names.set(id, item.workerNames[index] || id)))
+    return Array.from(names, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+  }, [stats.followUps, stats.evangelism, stats.generalOutreach])
+
   if (stats.loading) return <PageLoader rows={4} />
 
   const monthStart = month ? `${month}-01` : ''
@@ -70,14 +78,6 @@ export default function Reports() {
     const last = disciple.lastFollowUpDate || disciple.dateFirstContacted
     return last <= attentionDate && (worker === 'all' || disciple.assignedWorkerIds.includes(worker))
   })
-  const workerOptions = useMemo(() => {
-    const names = new Map<string, string>()
-    stats.followUps.forEach((item) => names.set(item.workerId, item.workerName))
-    stats.evangelism.forEach((item) => names.set(item.evangelistId, item.evangelistName))
-    stats.generalOutreach.forEach((item) => item.workerIds.forEach((id, index) => names.set(id, item.workerNames[index] || id)))
-    return Array.from(names, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
-  }, [stats.followUps, stats.evangelism, stats.generalOutreach])
-
   const annualSessions = stats.sessions.filter((item) => inRange(item.date, yearStart, yearEnd))
   const annualFollowUps = stats.followUps.filter((item) => inRange(item.completedDate || item.scheduledDate, yearStart, yearEnd) && (worker === 'all' || item.workerId === worker))
   const annualOutreach = stats.generalOutreach.filter((item) => inRange(item.date, yearStart, yearEnd) && (worker === 'all' || item.workerIds.includes(worker)))
