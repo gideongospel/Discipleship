@@ -73,7 +73,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-[0.82rem] font-semibold text-white">{profile.name}</p>
           <p className="font-brand text-[0.56rem] font-bold uppercase tracking-[0.24em] text-gold-400">
-            {profile.role === 'administrator' ? 'Administrator' : 'Worker'}
+            {profile.loginId === '1156' && profile.role === 'administrator' ? 'Main Administrator' : profile.role === 'administrator' ? 'Administrator' : 'Worker'}
           </p>
         </div>
         <button onClick={logout} title="Sign out" aria-label="Sign out" className="p-1 text-slate-500 transition-colors duration-200 hover:text-white">
