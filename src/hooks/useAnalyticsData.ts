@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { listDisciples } from '../services/discipleService'
 import { listEvangelismRecords } from '../services/evangelismService'
 import { listFollowUps } from '../services/followUpService'
-import { listAttendanceSessions } from '../services/attendanceService'
+import { listAttendanceSessions, listAllAttendanceRecords, type AttendanceRecord } from '../services/attendanceService'
 import { listOutreachActivities, type OutreachActivity } from '../services/outreachActivityService'
 import type { Disciple, EvangelismRecord, FollowUp, AttendanceSession } from '../types'
 import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS, SERVICE_TYPE_LABELS } from '../types'
@@ -15,6 +15,7 @@ export function useAnalyticsData() {
   const [evangelism, setEvangelism] = useState<EvangelismRecord[]>([])
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
   const [sessions, setSessions] = useState<AttendanceSession[]>([])
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const [generalOutreach, setGeneralOutreach] = useState<OutreachActivity[]>([])
 
   useEffect(() => {
@@ -26,13 +27,15 @@ export function useAnalyticsData() {
       listFollowUps(profile),
       listAttendanceSessions(),
       listOutreachActivities(profile),
-    ]).then(([d, e, f, s, outreach]) => {
+      listAllAttendanceRecords(profile),
+     ]).then(([d, e, f, s, outreach, attendance]) => {
       if (cancelled) return
       setDisciples(d)
       setEvangelism(e)
       setFollowUps(f)
       setSessions(s)
       setGeneralOutreach(outreach)
+      setAttendanceRecords(attendance)
       setLoading(false)
     })
     return () => {
@@ -96,6 +99,7 @@ export function useAnalyticsData() {
     evangelism,
     followUps,
     sessions,
+    attendanceRecords,
     generalOutreach,
     spiritualStatusData,
     receptivityData,
