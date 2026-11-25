@@ -6,6 +6,7 @@ import { listFollowUps } from '../services/followUpService'
 import { listAttendanceSessions, listAllAttendanceRecords, type AttendanceRecord } from '../services/attendanceService'
 import { listOutreachActivities, type OutreachActivity } from '../services/outreachActivityService'
 import type { Disciple, EvangelismRecord, FollowUp, AttendanceSession } from '../types'
+import { getFollowUpSettings, DEFAULT_FOLLOW_UP_SETTINGS, type FollowUpSettings } from '../services/followUpSettingsService'
 import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS, SERVICE_TYPE_LABELS } from '../types'
 
 export function useAnalyticsData() {
@@ -17,6 +18,7 @@ export function useAnalyticsData() {
   const [sessions, setSessions] = useState<AttendanceSession[]>([])
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const [generalOutreach, setGeneralOutreach] = useState<OutreachActivity[]>([])
+  const [followUpSettings, setFollowUpSettings] = useState<FollowUpSettings>(DEFAULT_FOLLOW_UP_SETTINGS)
 
   useEffect(() => {
     if (!profile) return
@@ -28,7 +30,8 @@ export function useAnalyticsData() {
       listAttendanceSessions(),
       listOutreachActivities(profile),
       listAllAttendanceRecords(profile),
-     ]).then(([d, e, f, s, outreach, attendance]) => {
+      getFollowUpSettings(),
+      ]).then(([d, e, f, s, outreach, attendance, thresholds]) => {
       if (cancelled) return
       setDisciples(d)
       setEvangelism(e)
@@ -36,6 +39,7 @@ export function useAnalyticsData() {
       setSessions(s)
       setGeneralOutreach(outreach)
       setAttendanceRecords(attendance)
+      setFollowUpSettings(thresholds)
       setLoading(false)
     })
     return () => {
@@ -101,6 +105,7 @@ export function useAnalyticsData() {
     sessions,
     attendanceRecords,
     generalOutreach,
+    followUpSettings,
     spiritualStatusData,
     receptivityData,
     outcomeData,
