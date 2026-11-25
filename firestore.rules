@@ -108,6 +108,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /churchResources/{resourceId} {
+      allow read: if isAdmin() || (isActive() && resource.data.status == 'published');
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isActive()
+        && resource.data.type == 'prayer_point'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prayedByIds'])
+        && request.resource.data.prayedByIds.hasAll(resource.data.prayedByIds)
+        && request.auth.uid in request.resource.data.prayedByIds
+        && request.resource.data.prayedByIds.size() <= resource.data.prayedByIds.size() + 1);
+      allow delete: if isAdmin();
+    }
+
     match /churchEvents/{eventId} {
       allow read: if isAdmin() || (isActive() && resource.data.status == 'published');
       allow create, update, delete: if isAdmin();
