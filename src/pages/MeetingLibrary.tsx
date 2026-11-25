@@ -20,6 +20,8 @@ export default function MeetingLibrary() {
   const [items, setItems] = useState<ChurchResource[]>([])
   const [loading, setLoading] = useState(true)
   const [type, setType] = useState<'all' | ChurchResourceType>('all')
+  const [search, setSearch] = useState('')
+  const [month, setMonth] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
   const [editing, setEditing] = useState<ChurchResource | null>(null)
   const [showForm, setShowForm] = useState(false)
@@ -35,7 +37,11 @@ export default function MeetingLibrary() {
 
   useEffect(() => { load().catch(() => setLoading(false)) }, [profile, isAdmin, includeArchived])
 
-  const visible = useMemo(() => items.filter((item) => type === 'all' || item.type === type), [items, type])
+  const visible = useMemo(() => items.filter((item) =>
+    (type === 'all' || item.type === type)
+    && (!month || item.date.startsWith(month))
+    && (!search || [item.title, item.category, item.mainPassage, item.excerpt, item.description, ...(item.references || []), ...(item.keyScriptures || [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase())),
+  ), [items, type, month, search])
 
   const save = async (input: ChurchResourceInput) => {
     if (!profile) return
@@ -90,6 +96,11 @@ export default function MeetingLibrary() {
           <button key={option.value} onClick={() => setType(option.value)} className={`px-3 py-2 text-sm font-semibold ${type === option.value ? 'border-b-2 border-gold-500 text-slate-950 dark:text-white' : 'text-slate-500'}`}>{option.label}</button>
         ))}
         {isAdmin && <label className="ml-auto flex items-center gap-2 text-xs text-slate-500"><input type="checkbox" checked={includeArchived} onChange={(event) => setIncludeArchived(event.target.checked)} /> Include drafts and archived</label>}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
+        <input className="input" placeholder="Search teaching topics, titles or scriptures…" value={search} onChange={(event) => setSearch(event.target.value)} />
+        <input className="input" type="month" aria-label="Filter by month" value={month} onChange={(event) => setMonth(event.target.value)} />
       </div>
 
       {visible.length === 0 ? <EmptyState title="No resources published yet">Meeting highlights and church prayer focuses will appear here when published.</EmptyState> : (
