@@ -54,6 +54,13 @@ export async function createAttendanceSession(
   const sessionId = `${input.serviceType}_${input.date}_${titleKey}`
   const sessionRef = doc(col, sessionId)
   const uniqueDiscipleIds = Array.from(new Set(input.presentDiscipleIds))
+  const legacySessions = await listAttendanceSessions()
+  const duplicateLegacy = legacySessions.some((session) =>
+    session.date === input.date
+    && session.serviceType === input.serviceType
+    && (session.title || session.serviceType.replace(/_/g, ' ')) === title,
+  )
+  if (duplicateLegacy) throw new Error('Attendance has already been created for this meeting and date. Open the existing session instead.')
 
   await runTransaction(db, async (transaction) => {
     const existing = await transaction.get(sessionRef)
