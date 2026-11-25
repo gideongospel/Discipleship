@@ -177,16 +177,16 @@ export default function AdminPanel() {
               <tr key={u.uid}>
                 <td className="py-2 font-medium">{u.name}</td>
                 <td className="py-2 font-mono text-xs">{u.loginId}</td>
-                <td className="py-2 capitalize">{u.role}</td>
+                <td className="py-2 capitalize">{u.loginId === '1156' && u.role === 'administrator' ? 'Main Administrator' : u.role}</td>
                 <td className="py-2 capitalize">{u.status}</td>
                 <td className="py-2 text-right">
                   <div className="inline-flex gap-2">
-                    <button onClick={() => resetPin(u)} className="btn-secondary !gap-1.5 !px-2.5 !py-1.5 !text-xs" title="Reset PIN">
+                    <button onClick={() => resetPin(u)} disabled={u.loginId === '1156'} className="btn-secondary !gap-1.5 !px-2.5 !py-1.5 !text-xs" title={u.loginId === '1156' ? 'Main Administrator account is protected' : 'Reset PIN'}>
                       <KeyRound size={14} /> Reset PIN
                     </button>
                     <button
                       onClick={() => toggleRole(u)}
-                      disabled={u.uid === profile?.uid}
+                      disabled={u.uid === profile?.uid || u.loginId === '1156'}
                       className="btn-secondary !gap-1.5 !px-2.5 !py-1.5 !text-xs"
                       title={u.role === 'administrator' ? 'Demote to worker' : 'Promote to administrator'}
                     >
@@ -194,7 +194,7 @@ export default function AdminPanel() {
                     </button>
                     <button
                       onClick={() => toggleSuspend(u)}
-                      disabled={u.uid === profile?.uid}
+                      disabled={u.uid === profile?.uid || u.loginId === '1156'}
                       className="btn-secondary !px-2.5 !py-1.5 !text-xs"
                     >
                       {u.status === 'suspended' ? 'Reactivate' : 'Suspend'}
