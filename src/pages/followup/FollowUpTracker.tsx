@@ -42,7 +42,7 @@ export default function FollowUpTracker() {
 
   const markComplete = async (f: FollowUp) => {
     if (!profile) return
-    const summary = prompt('Record the outcome of this follow-up:') ?? ''
+    const summary = prompt('Record the outcome of this follow-up:')
     if (summary === null) return
     await updateFollowUp(f.id, {
       status: 'completed',
