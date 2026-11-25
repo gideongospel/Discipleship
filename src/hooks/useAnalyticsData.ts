@@ -92,6 +92,11 @@ export function useAnalyticsData() {
 
   return {
     loading,
+    disciples,
+    evangelism,
+    followUps,
+    sessions,
+    generalOutreach,
     spiritualStatusData,
     receptivityData,
     outcomeData,
