@@ -122,6 +122,15 @@ export default function AttendanceSheet() {
           )}
         </div>
       </div>
+
+      <section className="card p-4">
+        <h2 className="mb-3 font-display text-xl font-medium">My attendance history</h2>
+        {myRecords.length === 0 ? <p className="text-sm text-slate-500">Your self-recorded attendance will appear here.</p> : (
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {myRecords.slice(0, 15).map((record) => <li key={record.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"><span><span className="block font-medium">{record.sessionTitle}</span><span className="text-xs text-slate-500">{record.date} · {record.method === 'self_recorded' ? 'Self-recorded' : `Recorded by ${record.recordedByName}`}</span></span><span className="tag text-emerald-700 dark:text-emerald-400">Present</span></li>)}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }
