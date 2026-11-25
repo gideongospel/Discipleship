@@ -95,6 +95,13 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    match /outreachActivities/{id} {
+      allow read: if isAdmin() || isAssignedWorker('workerIds');
+      allow create: if isActive();
+      allow update: if isAdmin() || (isActive() && resource.data.submittedById == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
     match /auditLogs/{id} {
       allow read: if isAdmin();
       allow create: if isActive();
