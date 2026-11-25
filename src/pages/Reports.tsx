@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useAnalyticsData } from '../hooks/useAnalyticsData'
 import Figure from '../components/ui/Figure'
 import BarList from '../components/ui/BarList'
@@ -20,7 +20,7 @@ function downloadCsv(rows: string[][], filename: string) {
   URL.revokeObjectURL(url)
 }
 
-function Panel({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
+function Panel({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
   return (
     <section>
       <div className={`mb-6 border-b pb-3 ${rule}`}>
@@ -62,10 +62,13 @@ export default function Reports() {
   ])
   const newDisciplesReached = selectedOutreach.reduce((sum, item) => sum + (item.newDisciplesIdentified || 0), 0)
     + selectedEvangelism.filter((item) => item.outcome === 'salvation').length
+  const referenceDate = month ? new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0) : new Date(Number(year), 11, 31)
+  const attentionCutoff = new Date(referenceDate)
+  attentionCutoff.setDate(attentionCutoff.getDate() - 30)
+  const attentionDate = `${attentionCutoff.getFullYear()}-${String(attentionCutoff.getMonth() + 1).padStart(2, '0')}-${String(attentionCutoff.getDate()).padStart(2, '0')}`
   const neglected = stats.disciples.filter((disciple) => {
     const last = disciple.lastFollowUpDate || disciple.dateFirstContacted
-    return last < (month ? monthStart : yearStart)
-      && (worker === 'all' || disciple.assignedWorkerIds.includes(worker))
+    return last <= attentionDate && (worker === 'all' || disciple.assignedWorkerIds.includes(worker))
   })
   const workerOptions = useMemo(() => {
     const names = new Map<string, string>()
