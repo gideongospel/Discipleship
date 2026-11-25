@@ -45,6 +45,14 @@ export async function listAttendanceRecords(personId: string): Promise<Attendanc
     .sort((a, b) => b.date.localeCompare(a.date))
 }
 
+export async function listAllAttendanceRecords(actor: AppUser): Promise<AttendanceRecord[]> {
+  const q = actor.role === 'administrator'
+    ? query(attendanceRecords, orderBy('date', 'desc'))
+    : query(attendanceRecords, where('personId', '==', actor.uid), orderBy('date', 'desc'))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AttendanceRecord, 'id'>) }))
+}
+
 export async function createAttendanceSession(
   input: { serviceType: ServiceType; date: string; title?: string; presentDiscipleIds: string[]; presentDiscipleNames?: Record<string, string> },
   actor: AppUser,
