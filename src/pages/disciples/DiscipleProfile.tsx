@@ -113,6 +113,17 @@ export default function DiscipleProfile() {
       </div>
 
       <div className="card p-5">
+        <h2 className="mb-3 font-display text-xl font-medium">Contact this disciple</h2>
+        <div className="flex flex-wrap gap-2">
+          {disciple.phone && <a className="btn-secondary" href={`tel:${disciple.phone.replace(/[^+\d]/g, '')}`}>Call</a>}
+          {disciple.phone && <a className="btn-secondary" href={`https://wa.me/${whatsappNumber(disciple.phone)}`} target="_blank" rel="noreferrer">WhatsApp</a>}
+          {disciple.email && <a className="btn-secondary" href={`mailto:${encodeURIComponent(disciple.email.trim())}`}>Email</a>}
+          {!disciple.phone && !disciple.email && <p className="text-sm text-slate-500">No contact details have been saved for this disciple.</p>}
+        </div>
+        <p className="mt-2 text-xs text-slate-500">Contact links open your device's calling, WhatsApp or email application. Messages are sent only when you choose to send them.</p>
+      </div>
+
+      <div className="card p-5">
         <h2 className="mb-3 font-display text-xl font-medium">Evangelism & Follow-up History</h2>
         {records.length === 0 ? (
           <EmptyState title="No outreach recorded">Visits and conversations with this person will appear here.</EmptyState>
@@ -139,7 +150,13 @@ export default function DiscipleProfile() {
   )
 }
 
-function whatsappNumber(phone: string) {\n  let digits = phone.replace(/\\D/g, '')\n  if (digits.length === 11 && digits.startsWith('0')) digits = `234${digits.slice(1)}`\n  return digits\n}\n\nfunction InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
+function whatsappNumber(phone: string) {
+  let digits = phone.replace(/\D/g, '')
+  if (digits.length === 11 && digits.startsWith('0')) digits = `234${digits.slice(1)}`
+  return digits
+}
+
+function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="border-slate-200 px-6 py-6 max-sm:pl-0 max-sm:[&:nth-child(n+2)]:border-t sm:border-l sm:first:border-l-0 sm:first:pl-0 dark:border-white/[0.09]">
       <p className="mb-3 font-brand text-[0.6rem] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
