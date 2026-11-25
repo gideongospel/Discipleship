@@ -92,3 +92,43 @@ export async function clearLoginMapping(loginId: string) {
 
 // Re-export for callers that want an atomic-ish check before creating
 export { runTransaction }
+
+
+/**
+ * Permanently assigns Main Administrator to the existing account whose
+ * Worker ID is 1156. The transaction and Firestore rules both verify the
+ * login mapping and administrator profile; the claim cannot be reassigned.
+ */
+export async function claimMainAdministrator(uid: string): Promise<void> {
+  await runTransaction(db, async (transaction) => {
+    const systemRef = doc(db, 'meta', 'systemInfo')
+    const loginRef = doc(db, 'loginIds', '1156')
+    const userRef = doc(db, 'users', uid)
+    const [systemSnap, loginSnap, userSnap] = await Promise.all([
+      transaction.get(systemRef),
+      transaction.get(loginRef),
+      transaction.get(userRef),
+    ])
+
+    if (!systemSnap.exists() || systemSnap.data().adminCreated !== true) {
+      throw new Error('The system is not initialized.')
+    }
+    const existingMainAdminUid = systemSnap.data().mainAdminUid
+    if (existingMainAdminUid) {
+      if (existingMainAdminUid === uid) return
+      throw new Error('A permanent Main Administrator has already been assigned.')
+    }
+    if (!loginSnap.exists() || loginSnap.data().uid !== uid) {
+      throw new Error('Worker ID 1156 does not match this signed-in account.')
+    }
+    if (!userSnap.exists() || userSnap.data().loginId !== '1156'
+      || userSnap.data().role !== 'administrator' || userSnap.data().status !== 'active') {
+      throw new Error('Worker ID 1156 must belong to an active administrator account.')
+    }
+
+    transaction.update(systemRef, {
+      mainAdminUid: uid,
+      mainAdminAssignedAt: serverTimestamp(),
+    })
+  })
+}
