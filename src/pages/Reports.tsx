@@ -49,6 +49,7 @@ export default function Reports() {
   }, [stats.followUps, stats.evangelism, stats.generalOutreach, stats.disciples])
 
   if (stats.loading) return <PageLoader rows={4} />
+  if (stats.error) return <div className="card space-y-3 p-6"><h1 className="page-title">Reports could not load</h1><p className="text-sm text-slate-600 dark:text-slate-300">{stats.error}</p><p className="text-xs text-slate-500">If this is a Firebase permission error, the deployed Firestore rules may not yet include the collections used by this page.</p><button className="btn-primary" onClick={() => window.location.reload()}>Reload page</button></div>
 
   const monthStart = month ? `${month}-01` : ''
   const monthEnd = month ? `${month}-31` : ''
