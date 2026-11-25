@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [profileState, setProfileState] = useState<ProfileState>('none')
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const rememberSession = useRef(false)
+  const rememberSession = useRef(Boolean(window.localStorage.getItem('discipleship.rememberedWorkerId')))
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (idleTimer.current) clearTimeout(idleTimer.current)
       idleTimer.current = setTimeout(() => {
         signOut(auth)
-      }, IDLE_TIMEOUT_MS)
+      }, rememberSession.current ? REMEMBERED_IDLE_TIMEOUT_MS : IDLE_TIMEOUT_MS)
     }
 
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart']
@@ -115,8 +115,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Worker ID 1156 is the one-time, permanent Main Administrator designation.
     // The Firestore rule independently verifies this account before accepting the claim.
     if (loginId.trim() === '1156' && p?.loginId === '1156' && p.role === 'administrator') {
-      const { claimMainAdministrator } = await import('../services/loginService')
-      await claimMainAdministrator(cred.user.uid)
+      try {
+        const { claimMainAdministrator } = await import('../services/loginService')
+        await claimMainAdministrator(cred.user.uid)
+      } catch (err) {
+        // Do not block a valid sign-in if the one-time claim is already made
+        // or the new Firestore rules have not yet been deployed.
+        console.warn('Main Administrator assignment could not be completed yet:', err)
+      }
     }
     // Recording the last-login time is housekeeping. It must never block a valid
     // sign-in (a worker may not be permitted to write to their own profile).
