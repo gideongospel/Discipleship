@@ -1,5 +1,5 @@
 import {
-  addDoc,
+  arrayUnion,
   collection,
   doc,
   getDocs,
@@ -7,12 +7,30 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  where,
+  writeBatch,
+  runTransaction,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { AppUser, AttendanceSession, ServiceType } from '../types'
 import { logAudit } from './auditService'
 
 const col = collection(db, 'attendanceSessions')
+const attendanceRecords = collection(db, 'attendanceRecords')
+
+export interface AttendanceRecord {
+  id: string
+  sessionId: string
+  sessionTitle: string
+  personId: string
+  personName: string
+  personType: 'disciple' | 'worker'
+  date: string
+  recordedBy: string
+  recordedByName: string
+  method: 'self_recorded' | 'worker_recorded'
+  createdAt?: unknown
+}
 
 export async function listAttendanceSessions(): Promise<AttendanceSession[]> {
   const q = query(col, orderBy('date', 'desc'))
@@ -20,24 +38,80 @@ export async function listAttendanceSessions(): Promise<AttendanceSession[]> {
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AttendanceSession, 'id'>) }))
 }
 
+export async function listAttendanceRecords(personId: string): Promise<AttendanceRecord[]> {
+  const q = query(attendanceRecords, where('personId', '==', personId))
+  const snap = await getDocs(q)
+  return snap.docs
+    .map((d) => ({ id: d.id, ...(d.data() as Omit<AttendanceRecord, 'id'>) }))
+    .sort((a, b) => b.date.localeCompare(a.date))
+}
+
 export async function createAttendanceSession(
   input: { serviceType: ServiceType; date: string; title?: string; presentDiscipleIds: string[] },
   actor: AppUser,
 ) {
-  const ref = await addDoc(col, {
+  const sessionRef = doc(col)
+  const batch = writeBatch(db)
+  const title = input.title || input.serviceType.replace(/_/g, ' ')
+  batch.set(sessionRef, {
     ...input,
     createdBy: actor.uid,
     createdAt: serverTimestamp(),
   })
+  for (const discipleId of Array.from(new Set(input.presentDiscipleIds))) {
+    const recordRef = doc(attendanceRecords, `${sessionRef.id}_${discipleId}`)
+    batch.set(recordRef, {
+      sessionId: sessionRef.id,
+      sessionTitle: title,
+      personId: discipleId,
+      personName: discipleId,
+      personType: 'disciple',
+      date: input.date,
+      recordedBy: actor.uid,
+      recordedByName: actor.name,
+      method: 'worker_recorded',
+      createdAt: serverTimestamp(),
+    })
+  }
+  await batch.commit()
   await logAudit({
     actorId: actor.uid,
     actorName: actor.name,
     action: 'create_attendance_session',
     targetType: 'attendanceSession',
-    targetId: ref.id,
+    targetId: sessionRef.id,
     details: `${input.serviceType} on ${input.date}`,
   })
-  return ref.id
+  return sessionRef.id
+}
+
+export async function recordSelfAttendance(session: AttendanceSession, actor: AppUser) {
+  const recordRef = doc(attendanceRecords, `${session.id}_${actor.uid}`)
+  const sessionRef = doc(db, 'attendanceSessions', session.id)
+  await runTransaction(db, async (transaction) => {
+    const existing = await transaction.get(recordRef)
+    if (existing.exists()) throw new Error('Attendance has already been recorded for you at this meeting.')
+    transaction.set(recordRef, {
+      sessionId: session.id,
+      sessionTitle: session.title || session.serviceType.replace(/_/g, ' '),
+      personId: actor.uid,
+      personName: actor.name,
+      personType: 'worker',
+      date: session.date,
+      recordedBy: actor.uid,
+      recordedByName: actor.name,
+      method: 'self_recorded',
+      createdAt: serverTimestamp(),
+    })
+    transaction.update(sessionRef, { presentDiscipleIds: arrayUnion(actor.uid) })
+  })
+  await logAudit({
+    actorId: actor.uid,
+    actorName: actor.name,
+    action: 'self_record_attendance',
+    targetType: 'attendanceSession',
+    targetId: session.id,
+  })
 }
 
 export async function updateAttendanceSession(
@@ -57,8 +131,9 @@ export async function updateAttendanceSession(
 
 /**
  * Attendance % for a disciple = sessions they attended / total sessions
- * held since their dateFirstContacted (sessions before they were even
- * contacted don't count against them).
+ * since their dateFirstContacted. Older sessions remain compatible with the
+ * original presentDiscipleIds field; the attendanceRecords collection adds
+ * recorder and recording-method detail without migrating existing sessions.
  */
 export function calculateAttendanceStats(
   sessions: AttendanceSession[],
