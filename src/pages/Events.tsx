@@ -13,7 +13,7 @@ import { downloadIcs, googleCalendarUrl } from '../utils/calendarExport'
 import PageLoader from '../components/ui/PageLoader'
 import EmptyState from '../components/ui/EmptyState'
 
-const today = () => new Date().toISOString().slice(0, 10)
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)
 
 export default function Events() {
   const { profile } = useAuth()
@@ -139,9 +139,10 @@ function EventForm({ initial, onClose, onSave }: {
   onSave: (input: ChurchEventInput) => Promise<void>
 }) {
   const [title, setTitle] = useState(initial?.title ?? '')
+  const [template, setTemplate] = useState('')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [date, setDate] = useState(initial?.date ?? today())
-  const [startTime, setStartTime] = useState(initial?.startTime ?? '10:00')
+  const [startTime, setStartTime] = useState(initial?.startTime ?? '')
   const [endTime, setEndTime] = useState(initial?.endTime ?? '')
   const [venue, setVenue] = useState(initial?.venue ?? '')
   const [category, setCategory] = useState<EventCategory>(initial?.category ?? 'regular_meeting')
@@ -163,7 +164,8 @@ function EventForm({ initial, onClose, onSave }: {
     <div className="modal-backdrop fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]">
       <form onSubmit={submit} className="card modal-panel max-h-[90vh] w-full max-w-xl space-y-3 overflow-y-auto p-5">
         <div className="flex items-center justify-between"><h2 className="font-display text-xl">{initial ? 'Edit event' : 'Create announcement'}</h2><button type="button" onClick={onClose}><X size={18} /></button></div>
-        <div><label className="label">Event title *</label><input className="input" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Wednesday Bible Study" /></div>
+        {!initial && <div><label className="label">Start with a regular meeting template</label><select className="input" value={template} onChange={(e) => { const value = e.target.value; setTemplate(value); if (value) { setTitle(value); setCategory('regular_meeting'); setRecurrence('weekly') } }}><option value="">Choose a template (optional)</option><option>Sunday Service</option><option>Wednesday Bible Study</option><option>Saturday General Evangelism</option></select></div>}
+        <div><label className="label">Event title *</label><input className="input" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Sunday Service" /></div>
         <div><label className="label">Description</label><textarea className="input min-h-20" value={description} onChange={(e) => setDescription(e.target.value)} /></div>
         <div className="grid grid-cols-2 gap-3">
           <div><label className="label">Category</label><select className="input" value={category} onChange={(e) => setCategory(e.target.value as EventCategory)}><option value="regular_meeting">Regular meeting</option><option value="special_programme">Special programme</option></select></div>
