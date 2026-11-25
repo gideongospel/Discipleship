@@ -55,7 +55,7 @@ export default function NotificationPopups() {
           id: `follow-up:${followUp.id}:${followUp.scheduledDate}`,
           title: days < 0 ? 'Overdue follow-up' : 'Follow-up due today',
           message: `${followUp.discipleName} · ${followUp.purpose || 'Check in with this disciple'}`,
-          path: '/follow-ups',
+          path: `/disciples/${followUp.discipleId}`,
           priority: 'important',
           kind: 'follow-up',
         })
