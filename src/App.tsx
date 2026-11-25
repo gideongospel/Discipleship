@@ -19,6 +19,7 @@ import Reports from './pages/Reports'
 import AdminPanel from './pages/admin/AdminPanel'
 import Settings from './pages/Settings'
 import Events from './pages/Events'
+import OutreachActivities from './pages/OutreachActivities'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
                     <Route path="/disciples/:id" element={<DiscipleProfile />} />
                     <Route path="/disciples/:id/edit" element={<DiscipleForm />} />
                     <Route path="/evangelism" element={<EvangelismLog />} />
+                    <Route path="/outreach-activities" element={<OutreachActivities />} />
                     <Route path="/follow-ups" element={<FollowUpTracker />} />
                     <Route path="/attendance" element={<AttendanceSheet />} />
                     <Route path="/events" element={<Events />} />
