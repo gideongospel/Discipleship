@@ -10,6 +10,9 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
   signOut,
   type User,
 } from 'firebase/auth'
@@ -33,7 +36,7 @@ interface AuthContextValue {
   profile: AppUser | null
   profileState: ProfileState
   loading: boolean
-  loginWithPin: (loginId: string, pin: string) => Promise<void>
+  loginWithPin: (loginId: string, pin: string, rememberMe?: boolean) => Promise<void>
   setupFirstAdmin: (name: string, pin: string) => Promise<{ loginId: string }>
   logout: () => Promise<void>
 }
@@ -43,6 +46,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 // Auto-logout after this much idle time (ms). Church-office shared
 // computers are the main reason this exists.
 const IDLE_TIMEOUT_MS = 20 * 60 * 1000
+const REMEMBERED_IDLE_TIMEOUT_MS = 30 * 24 * 60 * 60 * 1000
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
@@ -50,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [profileState, setProfileState] = useState<ProfileState>('none')
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rememberSession = useRef(false)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -95,7 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [firebaseUser])
 
-  const loginWithPin = async (loginId: string, pin: string) => {
+  const loginWithPin = async (loginId: string, pin: string, rememberMe = false) => {
+    rememberSession.current = rememberMe
+    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence)
     const email = await getEmailForLoginId(loginId.trim())
     if (!email) {
       // Deliberately vague — don't reveal whether the Login ID exists.
@@ -105,6 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const p = await getUserProfile(cred.user.uid)
     setProfile(p)
     setProfileState(p ? 'ready' : 'missing')
+    // Worker ID 1156 is the one-time, permanent Main Administrator designation.
+    // The Firestore rule independently verifies this account before accepting the claim.
+    if (loginId.trim() === '1156' && p?.loginId === '1156' && p.role === 'administrator') {
+      const { claimMainAdministrator } = await import('../services/loginService')
+      await claimMainAdministrator(cred.user.uid)
+    }
     // Recording the last-login time is housekeeping. It must never block a valid
     // sign-in (a worker may not be permitted to write to their own profile).
     try {
