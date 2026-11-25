@@ -21,6 +21,16 @@ function endTime(event: ChurchEvent) {
   return `${String(Math.floor((total % 1440) / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
 }
 
+function nextDate(date: string) {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10)
+}
+
+function eventEnd(event: ChurchEvent) {
+  const time = endTime(event)
+  return time <= (event.startTime || '00:00') ? { date: nextDate(event.date), time } : { date: event.date, time }
+}
+
 function escapeIcs(value: string) {
   return value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
 }
@@ -33,11 +43,12 @@ function recurrenceRule(event: ChurchEvent) {
 
 export function googleCalendarUrl(event: ChurchEvent) {
   const start = googleDate(event.date, event.startTime)
-  const end = googleDate(event.date, endTime(event))
+  const end = eventEnd(event)
+  const endStamp = googleDate(end.date, end.time)
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: event.title,
-    dates: `${start}/${end}`,
+    dates: `${start}/${endStamp}`,
     details: event.description || '',
     location: event.venue || '',
     ctz: CALENDAR_TZ,
@@ -50,7 +61,8 @@ export function googleCalendarUrl(event: ChurchEvent) {
 export function downloadIcs(event: ChurchEvent) {
   const uid = `${event.id}@discipleship-tracker`
   const start = utcStamp(event.date, event.startTime || '00:00')
-  const end = utcStamp(event.date, endTime(event))
+  const end = eventEnd(event)
+  const endStamp = utcStamp(end.date, end.time)
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -60,7 +72,7 @@ export function downloadIcs(event: ChurchEvent) {
     `UID:${uid}`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
     `DTSTART:${start}`,
-    `DTEND:${end}`,
+    `DTEND:${endStamp}`,
     `SUMMARY:${escapeIcs(event.title)}`,
     `DESCRIPTION:${escapeIcs(event.description || '')}`,
     `LOCATION:${escapeIcs(event.venue || '')}`,
