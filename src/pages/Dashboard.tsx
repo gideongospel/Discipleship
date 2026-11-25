@@ -49,6 +49,7 @@ export default function Dashboard() {
   const stats = useDashboardStats()
 
   if (stats.loading) return <PageLoader rows={5} />
+  if (stats.error) return <div className="card space-y-3 p-6"><h1 className="page-title">Dashboard could not load</h1><p className="text-sm text-slate-600 dark:text-slate-300">{stats.error}</p><p className="text-xs text-slate-500">If this is a Firebase permission error, the deployed Firestore rules may not yet include the collections used by this page.</p><button className="btn-primary" onClick={() => window.location.reload()}>Reload page</button></div>
 
   const overdue = stats.followUps.filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status) && daysFromToday(f.scheduledDate) < 0).length
   const stageCount = (k: SpiritualStatus) => stats.disciples.filter((d) => d.spiritualStatus === k).length
