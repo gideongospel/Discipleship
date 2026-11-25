@@ -23,15 +23,24 @@ export default function AttendanceSheet() {
   const [myRecords, setMyRecords] = useState<AttendanceRecord[]>([])
   const [recordingSession, setRecordingSession] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [showForm, setShowForm] = useState(false)
 
   const load = async () => {
     if (!profile) return
-    const [s, d, mine] = await Promise.all([listAttendanceSessions(), listDisciples(profile), listAttendanceRecords(profile.uid)])
-    setSessions(s)
-    setDisciples(d)
-    setMyRecords(mine)
-    setLoading(false)
+    setLoading(true)
+    setLoadError('')
+    try {
+      const [s, d, mine] = await Promise.all([listAttendanceSessions(), listDisciples(profile), listAttendanceRecords(profile.uid)])
+      setSessions(s)
+      setDisciples(d)
+      setMyRecords(mine)
+    } catch (cause) {
+      console.error('Attendance data loading failed:', cause)
+      setLoadError(cause instanceof Error ? cause.message : 'Attendance data could not be loaded. Check your Firebase access and try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -53,6 +62,7 @@ export default function AttendanceSheet() {
   }
 
   if (loading) return <PageLoader />
+  if (loadError) return <div className="card space-y-3 p-6"><h1 className="page-title">Attendance could not load</h1><p className="text-sm text-slate-600 dark:text-slate-300">{loadError}</p><button className="btn-primary" onClick={() => { setLoading(true); load().catch((error) => { console.error(error); setLoadError(error instanceof Error ? error.message : 'Unable to load attendance.'); setLoading(false) }) }}>Try again</button></div>
 
   return (
     <div className="space-y-4">
