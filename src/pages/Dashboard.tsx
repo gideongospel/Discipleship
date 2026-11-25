@@ -41,7 +41,7 @@ export default function Dashboard() {
 
   if (stats.loading) return <PageLoader rows={5} />
 
-  const overdue = stats.followUps.filter((f) => f.status === 'scheduled' && daysFromToday(f.scheduledDate) < 0).length
+  const overdue = stats.followUps.filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status) && daysFromToday(f.scheduledDate) < 0).length
   const stageCount = (k: SpiritualStatus) => stats.disciples.filter((d) => d.spiritualStatus === k).length
   const total = stats.totalDisciples || 1
   const first = profile?.name?.split(' ')[0]
