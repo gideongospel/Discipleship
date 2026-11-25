@@ -31,6 +31,11 @@ service cloud.firestore {
       return isActive() && request.auth.uid in request.resource.data[field];
     }
 
+    function isAssignedToDisciple(discipleId) {
+      return exists(/databases/$(database)/documents/disciples/$(discipleId))
+        && request.auth.uid in get(/databases/$(database)/documents/disciples/$(discipleId)).data.assignedWorkerIds;
+    }
+
     function systemInitialized() {
       return exists(/databases/$(database)/documents/meta/systemInfo)
         && get(/databases/$(database)/documents/meta/systemInfo).data.adminCreated == true;
@@ -90,6 +95,19 @@ service cloud.firestore {
 
     // Published events are visible to all active users; only administrators
     // can create, edit, publish, archive or delete church announcements.
+    match /attendanceRecords/{recordId} {
+      allow read: if isAdmin() || (isActive() && (
+        resource.data.personId == request.auth.uid
+        || (resource.data.personType == 'disciple' && isAssignedToDisciple(resource.data.personId))
+      ));
+      allow create: if isActive() && request.resource.data.recordedBy == request.auth.uid && (
+        (request.resource.data.method == 'self_recorded' && request.resource.data.personId == request.auth.uid)
+        || (request.resource.data.method == 'worker_recorded' && (isAdmin() || isAssignedToDisciple(request.resource.data.personId)))
+      );
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
     match /churchEvents/{eventId} {
       allow read: if isAdmin() || (isActive() && resource.data.status == 'published');
       allow create, update, delete: if isAdmin();
