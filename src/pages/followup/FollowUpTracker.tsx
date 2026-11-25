@@ -77,6 +77,16 @@ export default function FollowUpTracker() {
 
   if (loading) return <PageLoader />
 
+  if (loadError) {
+    return (
+      <div className="card space-y-3 p-6">
+        <h2 className="font-display text-lg font-medium">Follow-up data could not be loaded</h2>
+        <p className="text-sm text-rose-600 dark:text-rose-400">{loadError}</p>
+        <button className="btn-primary" onClick={() => { void load() }}>Try again</button>
+      </div>
+    )
+  }
+
   const active = followUps.filter((f) => ACTIVE_STATUSES.includes(f.status))
   const history = followUps.filter((f) => !ACTIVE_STATUSES.includes(f.status))
 
