@@ -39,13 +39,14 @@ export default function Reports() {
   const [month, setMonth] = useState(currentMonth)
   const [year, setYear] = useState(currentYear)
   const [worker, setWorker] = useState('all')
-  const workerOptions = useMemo(() => {
-    const names = new Map<string, string>()
-    stats.followUps.forEach((item) => names.set(item.workerId, item.workerName))
-    stats.evangelism.forEach((item) => names.set(item.evangelistId, item.evangelistName))
-    stats.generalOutreach.forEach((item) => item.workerIds.forEach((id, index) => names.set(id, item.workerNames[index] || id)))
-    return Array.from(names, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
-  }, [stats.followUps, stats.evangelism, stats.generalOutreach])
+  const reportOptions = useMemo(() => {
+    const people = new Map<string, { id: string; name: string; kind: 'worker' | 'member' }>()
+    stats.followUps.forEach((item) => people.set('worker:' + item.workerId, { id: 'worker:' + item.workerId, name: item.workerName, kind: 'worker' }))
+    stats.evangelism.forEach((item) => people.set('worker:' + item.evangelistId, { id: 'worker:' + item.evangelistId, name: item.evangelistName, kind: 'worker' }))
+    stats.generalOutreach.forEach((item) => item.workerIds.forEach((id, index) => people.set('worker:' + id, { id: 'worker:' + id, name: item.workerNames[index] || id, kind: 'worker' })))
+    stats.disciples.forEach((item) => people.set('member:' + item.id, { id: 'member:' + item.id, name: item.name, kind: 'member' }))
+    return Array.from(people.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [stats.followUps, stats.evangelism, stats.generalOutreach, stats.disciples])
 
   if (stats.loading) return <PageLoader rows={4} />
 
@@ -54,12 +55,29 @@ export default function Reports() {
   const yearStart = `${year}-01-01`
   const yearEnd = `${year}-12-31`
   const inRange = (date?: string, start = monthStart, end = monthEnd) => Boolean(date && date >= start && date <= end)
-  const selectedFollowUps = stats.followUps.filter((item) => inRange(item.completedDate || item.scheduledDate) && (worker === 'all' || item.workerId === worker))
-  const selectedEvangelism = stats.evangelism.filter((item) => inRange(item.date) && (worker === 'all' || item.evangelistId === worker))
-  const selectedOutreach = stats.generalOutreach.filter((item) => inRange(item.date) && (worker === 'all' || item.workerIds.includes(worker)))
+  const scopeKind = worker === 'all' ? 'all' : worker.startsWith('member:') ? 'member' : 'worker'
+  const scopeId = worker === 'all' ? '' : worker.slice(worker.indexOf(':') + 1)
+  const selectedMember = scopeKind === 'member' ? stats.disciples.find((item) => item.id === scopeId) : undefined
+  const selectedFollowUps = stats.followUps.filter((item) => inRange(item.completedDate || item.scheduledDate)
+    && (scopeKind === 'all' || (scopeKind === 'worker' ? item.workerId === scopeId : item.discipleId === scopeId)))
+  const selectedEvangelism = stats.evangelism.filter((item) => inRange(item.date)
+    && (scopeKind === 'all' || (scopeKind === 'worker' ? item.evangelistId === scopeId : item.discipleId === scopeId)))
+  const selectedOutreach = stats.generalOutreach.filter((item) => inRange(item.date)
+    && (scopeKind === 'all' || (scopeKind === 'worker' && item.workerIds.includes(scopeId))))
   const selectedSessions = stats.sessions.filter((item) => inRange(item.date))
-  const eligiblePairs = selectedSessions.reduce((total, session) => total + stats.disciples.filter((disciple) => disciple.dateFirstContacted <= session.date).length, 0)
-  const recordedAttendance = selectedSessions.reduce((total, session) => total + session.presentDiscipleIds.length, 0)
+  const eligibleMemberSessions = selectedMember
+    ? selectedSessions.filter((session) => selectedMember.dateFirstContacted <= session.date)
+    : selectedSessions
+  const eligiblePairs = scopeKind === 'member'
+    ? eligibleMemberSessions.length
+    : scopeKind === 'worker'
+      ? selectedSessions.length
+      : selectedSessions.reduce((total, session) => total + stats.disciples.filter((disciple) => disciple.dateFirstContacted <= session.date).length, 0)
+  const recordedAttendance = scopeKind === 'member'
+    ? eligibleMemberSessions.filter((session) => session.presentDiscipleIds.includes(scopeId)).length
+    : scopeKind === 'worker'
+      ? stats.attendanceRecords.filter((record) => inRange(record.date) && record.personId === scopeId).length
+      : selectedSessions.reduce((total, session) => total + session.presentDiscipleIds.length, 0)
   const attendanceRate = eligiblePairs ? Math.round(recordedAttendance / eligiblePairs * 100) : 0
   const followedDiscipleIds = new Set(selectedFollowUps.filter((item) => item.status === 'completed').map((item) => item.discipleId))
   const completedCount = selectedFollowUps.filter((item) => item.status === 'completed').length
@@ -76,19 +94,24 @@ export default function Reports() {
   const attentionDate = `${attentionCutoff.getFullYear()}-${String(attentionCutoff.getMonth() + 1).padStart(2, '0')}-${String(attentionCutoff.getDate()).padStart(2, '0')}`
   const neglected = stats.disciples.filter((disciple) => {
     const last = disciple.lastFollowUpDate || disciple.dateFirstContacted
-    return last <= attentionDate && (worker === 'all' || disciple.assignedWorkerIds.includes(worker))
+    const inScope = scopeKind === 'all' || (scopeKind === 'member' ? disciple.id === scopeId : disciple.assignedWorkerIds.includes(scopeId))
+    return last <= attentionDate && inScope
   })
   const annualSessions = stats.sessions.filter((item) => inRange(item.date, yearStart, yearEnd))
-  const annualFollowUps = stats.followUps.filter((item) => inRange(item.completedDate || item.scheduledDate, yearStart, yearEnd) && (worker === 'all' || item.workerId === worker))
-  const annualOutreach = stats.generalOutreach.filter((item) => inRange(item.date, yearStart, yearEnd) && (worker === 'all' || item.workerIds.includes(worker)))
-  const annualEvangelism = stats.evangelism.filter((item) => inRange(item.date, yearStart, yearEnd) && (worker === 'all' || item.evangelistId === worker))
-  const annualAttendance = annualSessions.reduce((sum, session) => sum + session.presentDiscipleIds.length, 0)
+  const annualFollowUps = stats.followUps.filter((item) => inRange(item.completedDate || item.scheduledDate, yearStart, yearEnd) && (scopeKind === 'all' || (scopeKind === 'worker' ? item.workerId === scopeId : item.discipleId === scopeId)))
+  const annualOutreach = stats.generalOutreach.filter((item) => inRange(item.date, yearStart, yearEnd) && (scopeKind === 'all' || (scopeKind === 'worker' && item.workerIds.includes(scopeId))))
+  const annualEvangelism = stats.evangelism.filter((item) => inRange(item.date, yearStart, yearEnd) && (scopeKind === 'all' || (scopeKind === 'worker' ? item.evangelistId === scopeId : item.discipleId === scopeId)))
+  const annualAttendance = scopeKind === 'member'
+    ? annualSessions.filter((session) => selectedMember && selectedMember.dateFirstContacted <= session.date && session.presentDiscipleIds.includes(scopeId)).length
+    : scopeKind === 'worker'
+      ? stats.attendanceRecords.filter((record) => inRange(record.date, yearStart, yearEnd) && record.personId === scopeId).length
+      : annualSessions.reduce((sum, session) => sum + session.presentDiscipleIds.length, 0)
   const annualMeetingsHeld = annualSessions.length
 
   const exportReport = () => {
     const rows = [
       ['Discipleship Tracker report', month || year],
-      ['Scope', worker === 'all' ? 'Church/group' : workerOptions.find((item) => item.id === worker)?.name || worker],
+      ['Scope', worker === 'all' ? 'Church/group' : reportOptions.find((item) => item.id === worker)?.name || worker],
       ['Meetings held', String(selectedSessions.length)],
       ['Recorded attendance entries', String(recordedAttendance)],
       ['Attendance rate', `${attendanceRate}%`],
@@ -122,10 +145,10 @@ export default function Reports() {
       <section className="card grid gap-3 p-4 sm:grid-cols-3 print:hidden">
         <label className="text-xs font-semibold text-slate-500">Reporting month<input className="input mt-1" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></label>
         <label className="text-xs font-semibold text-slate-500">Annual overview year<input className="input mt-1" type="number" min="2000" max="2200" value={year} onChange={(event) => setYear(event.target.value)} /></label>
-        <label className="text-xs font-semibold text-slate-500">Worker / group<select className="input mt-1" value={worker} onChange={(event) => setWorker(event.target.value)}><option value="all">All workers / church-wide</option>{workerOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label className="text-xs font-semibold text-slate-500">Report for<select className="input mt-1" value={worker} onChange={(event) => setWorker(event.target.value)}><option value="all">Church-wide / group</option><optgroup label="Workers">{reportOptions.filter((item) => item.kind === 'worker').map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup><optgroup label="Disciples / members">{reportOptions.filter((item) => item.kind === 'member').map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup></select></label>
       </section>
 
-      <Panel title={`Monthly activity summary · ${month || 'Choose a month'}`} note="Attendance percentage uses registered disciples who had already been contacted by each meeting date.">
+      <Panel title={`Monthly activity summary · ${month || 'Choose a month'}`} note={scopeKind === 'member' ? 'Individual member attendance is measured from their first-contact date.' : scopeKind === 'worker' ? 'Worker attendance is based on recorded self-attendance records.' : 'Church attendance percentage uses registered disciples who had already been contacted by each meeting date.'}>
         <div className={`grid grid-cols-2 border-y sm:grid-cols-3 lg:grid-cols-4 ${rule}`}>
           <Figure label="Meetings held" value={selectedSessions.length} />
           <Figure label="Recorded attendance" value={recordedAttendance} />
