@@ -10,6 +10,10 @@ function googleDate(date: string, time: string) {
   return dateTime(date, time).replace(/[-:]/g, '')
 }
 
+function utcStamp(date: string, time: string) {
+  return new Date(dateTime(date, time)).toISOString().replace(/[-:]/g, '').replace(/\\.\\d{3}Z$/, 'Z')
+}
+
 function endTime(event: ChurchEvent) {
   if (event.endTime) return event.endTime
   const [hours, minutes] = (event.startTime || '00:00').split(':').map(Number)
@@ -23,7 +27,7 @@ function escapeIcs(value: string) {
 
 function recurrenceRule(event: ChurchEvent) {
   if (event.recurrence === 'none') return ''
-  const until = event.recurrenceUntil ? `;UNTIL=${event.recurrenceUntil.replace(/-/g, '')}T235959Z` : ''
+  const until = event.recurrenceUntil ? `;UNTIL=${utcStamp(event.recurrenceUntil, '22:59:59')}` : ''
   return `RRULE:FREQ=${event.recurrence.toUpperCase()}${until}`
 }
 
@@ -45,8 +49,8 @@ export function googleCalendarUrl(event: ChurchEvent) {
 
 export function downloadIcs(event: ChurchEvent) {
   const uid = `${event.id}@discipleship-tracker`
-  const start = `${event.date.replace(/-/g, '')}T${(event.startTime || '00:00').replace(':', '')}00`
-  const end = `${event.date.replace(/-/g, '')}T${endTime(event).replace(':', '')}00`
+  const start = utcStamp(event.date, event.startTime || '00:00')
+  const end = utcStamp(event.date, endTime(event))
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -55,8 +59,8 @@ export function downloadIcs(event: ChurchEvent) {
     'BEGIN:VEVENT',
     `UID:${uid}`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\\.\d{3}/, '')}`,
-    `DTSTART;TZID=${CALENDAR_TZ}:${start}`,
-    `DTEND;TZID=${CALENDAR_TZ}:${end}`,
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
     `SUMMARY:${escapeIcs(event.title)}`,
     `DESCRIPTION:${escapeIcs(event.description || '')}`,
     `LOCATION:${escapeIcs(event.venue || '')}`,
