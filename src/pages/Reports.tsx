@@ -32,11 +32,13 @@ export default function Reports() {
         <h1 className="page-title mt-5">Reports &amp; analytics</h1>
       </header>
 
-      <section className={`grid grid-cols-1 border-y sm:grid-cols-3 ${rule}`}>
+      <section className={`grid grid-cols-2 border-y sm:grid-cols-3 lg:grid-cols-5 ${rule}`}>
         {[
           <Figure key="a" label="Disciples" value={stats.totalDisciples} />,
           <Figure key="b" label="Outreach records" value={stats.totalEvangelismRecords} />,
           <Figure key="c" label="Follow-up completion" value={stats.followUpCompletionRate} suffix="%" progress={stats.followUpCompletionRate} />,
+          <Figure key="d" label="General outreach" value={stats.totalGeneralOutreach} />,
+          <Figure key="e" label="People reached" value={stats.peopleReached} />,
         ].map((cell, i) => (
           <div key={i} className={`px-6 py-8 max-sm:pl-0 max-sm:[&:nth-child(n+2)]:border-t sm:border-l sm:first:border-l-0 sm:first:pl-0 ${rule}`}>
             {cell}
