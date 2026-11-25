@@ -11,11 +11,6 @@ service cloud.firestore {
       return /databases/$(database)/documents/users/$(request.auth.uid);
     }
 
-    // Guarded with exists() first — calling get() on a document that
-    // doesn't exist yet (e.g. during first-run admin bootstrap, before
-    // the user's own profile doc has been written) throws and denies the
-    // whole rule instead of just evaluating false, so every check here
-    // checks existence before reading.
     function hasProfile() {
       return isSignedIn() && exists(userDocPath());
     }
@@ -41,59 +36,38 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/meta/systemInfo).data.adminCreated == true;
     }
 
-    // ---- Meta (first-run bootstrap flag) ----
-    // Publicly readable (the login screen needs to know whether to show
-    // "set up admin" vs. the normal login form, before anyone is signed
-    // in). Writable exactly once: false -> true, never editable again.
     match /meta/systemInfo {
       allow read: if true;
       allow create: if request.resource.data.adminCreated == true;
       allow update, delete: if false;
     }
 
-    // ---- Login ID -> email lookup ----
-    // Publicly readable by design — it's how the login screen resolves a
-    // Worker ID to the synthetic email Firebase Auth needs. Nothing secret
-    // lives here (no PIN, no name). Only admins can write it, except during
-    // first-run bootstrap when no admin exists yet.
     match /loginIds/{loginId} {
       allow get: if true;
-      allow list: if false; // no enumeration of all login IDs
+      allow list: if false;
       allow create: if isAdmin() || !systemInitialized();
       allow update: if isAdmin();
       allow delete: if false;
     }
 
-    // ---- Users ----
-    // Any active user can read the directory (needed to show co-workers
-    // when sharing a disciple) — names/roles aren't sensitive in an
-    // internal church tool. Only admins can create/update OTHER users;
-    // the bootstrap admin can create their own doc once, before any admin
-    // exists.
     match /users/{uid} {
       allow read: if isSignedIn() && (request.auth.uid == uid || isActive());
       allow create: if isAdmin()
         || (request.auth.uid == uid
             && request.resource.data.role == 'administrator'
             && !systemInitialized());
-      // Admins can update any profile. Every signed-in user may update ONLY the
-      // lastLoginAt field on their OWN profile — never role, status or loginId.
       allow update: if isAdmin()
         || (isActive() && request.auth.uid == uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt']));
-      allow delete: if isAdmin(); // used only to clean up the old doc after a PIN reset
+      allow delete: if isAdmin();
     }
 
-    // ---- Disciples ----
-    // Admins: full access. Workers: read/write only disciples they're
-    // assigned to — a disciple can have multiple assigned workers.
     match /disciples/{id} {
       allow read: if isAdmin() || isAssignedWorker('assignedWorkerIds');
       allow create: if isAdmin() || (isActive() && isAssignedWorkerOnCreate('assignedWorkerIds'));
       allow update, delete: if isAdmin() || isAssignedWorker('assignedWorkerIds');
     }
 
-    // ---- Evangelism records ----
     match /evangelismRecords/{id} {
       allow read: if isAdmin() || isAssignedWorker('assignedWorkerIds');
       allow create: if isActive();
@@ -101,7 +75,6 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ---- Follow-ups ----
     match /followUps/{id} {
       allow read: if isAdmin() || (isActive() && resource.data.workerId == request.auth.uid);
       allow create: if isActive();
@@ -109,14 +82,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ---- Attendance sessions ----
     match /attendanceSessions/{id} {
       allow read: if isActive();
       allow create, update: if isActive();
       allow delete: if isAdmin();
     }
 
-    // ---- Audit logs ----
+    // Published events are visible to all active users; only administrators
+    // can create, edit, publish, archive or delete church announcements.
+    match /churchEvents/{eventId} {
+      allow read: if isAdmin() || (isActive() && resource.data.status == 'published');
+      allow create, update, delete: if isAdmin();
+    }
+
     match /auditLogs/{id} {
       allow read: if isAdmin();
       allow create: if isActive();
