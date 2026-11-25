@@ -27,7 +27,7 @@ function escapeIcs(value: string) {
 
 function recurrenceRule(event: ChurchEvent) {
   if (event.recurrence === 'none') return ''
-  const until = event.recurrenceUntil ? `;UNTIL=${utcStamp(event.recurrenceUntil, '22:59:59')}` : ''
+  const until = event.recurrenceUntil ? `;UNTIL=${new Date(`${event.recurrenceUntil}T23:59:59+01:00`).toISOString().replace(/[-:]/g, '').replace(/\\.\\d{3}Z$/, 'Z')}` : ''
   return `RRULE:FREQ=${event.recurrence.toUpperCase()}${until}`
 }
 
