@@ -11,6 +11,7 @@ import { listChurchResources, type ChurchResource } from '../services/churchReso
 export function useDashboardStats() {
   const { profile } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [disciples, setDisciples] = useState<Disciple[]>([])
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
   const [events, setEvents] = useState<ChurchEvent[]>([])
@@ -25,6 +26,7 @@ export function useDashboardStats() {
 
     async function load() {
       setLoading(true)
+      try {
       const [d, f, sessions, churchEvents, churchResources, thresholds] = await Promise.all([
         listDisciples(profile!),
         listFollowUps(profile!),
@@ -52,7 +54,13 @@ export function useDashboardStats() {
       } else {
         setAttendanceRate(0)
       }
-      setLoading(false)
+      setError('')
+      } catch (cause) {
+        console.error('Dashboard data loading failed:', cause)
+        setError(cause instanceof Error ? cause.message : 'Some dashboard data could not be loaded. Check your Firebase access and try again.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
 
     load()
@@ -93,6 +101,7 @@ export function useDashboardStats() {
 
   return {
     loading,
+    error,
     disciples,
     followUps,
     totalDisciples: disciples.length,
