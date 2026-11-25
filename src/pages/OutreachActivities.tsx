@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Plus, X, Megaphone } from '../components/ui/icons'
 import { useAuth } from '../context/AuthContext'
 import { getAllUsers } from '../services/userService'
@@ -77,7 +77,7 @@ function ActivityForm({ workers, onClose, onSaved }: { workers: AppUser[]; onClo
 
   const toggleWorker = (uid: string) => setWorkerIds((current) => current.includes(uid) ? current.filter((id) => id !== uid) : [...current, uid])
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!profile || !activityName.trim() || !date || !startTime) return
     setSaving(true)
