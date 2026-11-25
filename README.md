@@ -219,3 +219,26 @@ A deliberately non-generic, editorial system. The principles, so future changes 
 - **Dark by default** on first visit; the toggle persists.
 - **Command palette**: Ctrl/Cmd + K. **Notifications bell**: follow-ups overdue or due within 3 days.
 - The login tagline lives in `src/components/brand/AuthShell.tsx`.
+
+
+## Incremental church operations upgrade
+
+The `feature/church-events-calendar` branch adds the following without replacing the existing data model:
+
+- **Announcements & Events** at `/events`: administrator-managed regular meeting templates and special programmes, draft/published/archived states, and published events on the dashboard.
+- **Calendar export**: user-initiated Google Calendar links and downloadable ICS files. These do not write to a user's calendar automatically. When an event changes, users must update or remove their saved calendar copy.
+- **General Evangelism Activities** at `/outreach-activities`: separate team activity records with dates, times, workers, people reached and outcomes. These are not attendance records or individual disciple conversations.
+- **Follow-up improvements**: purpose, time, method, notes, edit-in-place, and pending/postponed/missed/completed outcomes. Existing follow-up documents remain readable.
+- **Attendance records**: new `attendanceRecords` documents record the attendee, meeting, recorder and recording method. Existing `attendanceSessions` and their `presentDiscipleIds` remain the source for legacy attendance summaries; no backfill is required. New session IDs are deterministic to reduce duplicate meeting creation.
+- **Dashboard and reports**: upcoming published events, calendar actions, general outreach totals and the expanded follow-up lifecycle.
+- **In-app reminders**: one-time-per-user pop-ups for overdue/due-today follow-ups and events today/tomorrow. Dismissed alerts are remembered in that browser.
+
+### Deploying the Firestore additions
+
+After the code change is reviewed and merged, deploy the updated Firestore rules and indexes to the existing Firebase project:
+
+```bash
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+The new collections are `churchEvents`, `outreachActivities`, and `attendanceRecords`. They are created automatically when the first corresponding record is saved. Existing collections and documents are not migrated or deleted.
