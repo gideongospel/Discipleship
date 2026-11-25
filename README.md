@@ -242,3 +242,19 @@ firebase deploy --only firestore:rules,firestore:indexes
 ```
 
 The new collections are `churchEvents`, `outreachActivities`, and `attendanceRecords`. They are created automatically when the first corresponding record is saved. Existing collections and documents are not migrated or deleted.
+
+
+### Reporting, shepherding and church resources
+
+- **Monthly and annual reports** at `/reports`: date-scoped summaries, worker/member filters, recorded attendance calculations, CSV export and print. Member attendance is measured from the first-contact date; worker attendance uses explicit self-attendance records. These are activity summaries, not spiritual assessments.
+- **Shepherding reminders**: the dashboard surfaces follow-ups due today, overdue follow-ups and disciples with no follow-up recorded in the last 30 days. The 30-day value is currently a code-level default, not an administrator-configurable setting.
+- **Encouragement**: the dashboard rotates through Scripture-grounded reminders using 1 Corinthians 15:58, Hebrews 6:10, Galatians 6:9, Colossians 3:23–24 and 1 Thessalonians 1:3.
+- **Meeting Excerpts & Prayer Points** at `/meeting-library`: authorised administrators can draft, publish, edit and archive Sunday Service / Wednesday Bible Study teaching highlights and categorised church prayer focuses. Members can read and share published resources and mark a prayer focus as prayed about. This is not treated as evidence of an answered prayer.
+- **Disciple contact actions**: profiles expose device-initiated call, WhatsApp and email links using saved contact details. The app does not send messages automatically.
+- **Notifications**: in-app alerts cover due/overdue follow-ups, events today/tomorrow and recent teaching or prayer resources. Seen alert IDs are stored locally per user; these are not remote push notifications.
+
+The new `churchResources` collection is created when the first excerpt or prayer point is saved. The `attendanceRecords` collection stores explicit attendance metadata; older session records continue to be supported through `attendanceSessions`.
+
+### Remaining security decision before delegated administrators
+
+The existing application has a single `administrator` role and the first-run system document currently stores only `adminCreated`, not a verified main-administrator UID. A safe delegated-admin implementation must first designate the existing account that will own the platform. Do not simply let any current administrator claim the main role or weaken the current rules. Once the main administrator account is explicitly identified, the role/permission changes can be enforced in Firestore rules and the Admin Panel.
