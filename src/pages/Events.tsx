@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { CalendarClock, Plus, X, ExternalLink, Download, Megaphone } from '../components/ui/icons'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { CalendarClock, Plus, X, ArrowRight, Download, Megaphone } from '../components/ui/icons'
 import { useAuth } from '../context/AuthContext'
 import {
   createChurchEvent,
@@ -121,7 +121,7 @@ function EventCard({ event, isAdmin, onEdit, onStatus }: {
       </div>
       {event.recurrence !== 'none' && <p className="text-xs text-slate-500">Repeats {event.recurrence}{event.recurrenceUntil ? ` until ${event.recurrenceUntil}` : ''}</p>}
       <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-white/10">
-        <button className="btn-secondary" onClick={() => window.open(googleCalendarUrl(event), '_blank', 'noopener,noreferrer')}><ExternalLink size={14} /> Google Calendar</button>
+        <button className="btn-secondary" onClick={() => window.open(googleCalendarUrl(event), '_blank', 'noopener,noreferrer')}><ArrowRight size={14} /> Google Calendar</button>
         <button className="btn-secondary" onClick={() => downloadIcs(event)}><Download size={14} /> Download .ics</button>
         {isAdmin && <button className="btn-secondary" onClick={onEdit}>Edit</button>}
         {isAdmin && event.status === 'draft' && <button className="btn-primary" onClick={() => onStatus(event, 'published')}>Publish</button>}
@@ -150,7 +150,7 @@ function EventForm({ initial, onClose, onSave }: {
   const [status, setStatus] = useState<ChurchEventInput['status']>(initial?.status ?? 'draft')
   const [saving, setSaving] = useState(false)
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!title.trim() || !date || !startTime) return
     setSaving(true)
