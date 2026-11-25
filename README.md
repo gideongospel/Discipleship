@@ -258,3 +258,6 @@ The new `churchResources` collection is created when the first excerpt or prayer
 ### Remaining security decision before delegated administrators
 
 The existing application has a single `administrator` role and the first-run system document currently stores only `adminCreated`, not a verified main-administrator UID. A safe delegated-admin implementation must first designate the existing account that will own the platform. Do not simply let any current administrator claim the main role or weaken the current rules. Once the main administrator account is explicitly identified, the role/permission changes can be enforced in Firestore rules and the Admin Panel.
+
+- **Configurable shepherding thresholds**: administrators can set the no-contact interval, missed-meeting reminder threshold and new-convert follow-up interval under Settings. Defaults are 30 days, three missed meetings and seven days. These are operational reminders only.
+- The `appSettings/followUp` document is created when an administrator first saves the thresholds; until then, the app uses safe in-code defaults.
