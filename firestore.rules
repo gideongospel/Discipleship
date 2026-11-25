@@ -115,7 +115,9 @@ service cloud.firestore {
 
     match /outreachActivities/{id} {
       allow read: if isAdmin() || isAssignedWorker('workerIds');
-      allow create: if isActive();
+      allow create: if isActive()
+        && request.resource.data.submittedById == request.auth.uid
+        && request.auth.uid in request.resource.data.workerIds;
       allow update: if isAdmin() || (isActive() && resource.data.submittedById == request.auth.uid);
       allow delete: if isAdmin();
     }
