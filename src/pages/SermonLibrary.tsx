@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { sermonManuscripts } from './sermonManuscripts'
 
 type Sermon = { title: string; theme: string; explanation: string; outline: string[]; scriptures: string; words: string; takeHome: string[]; reflection: string; ministryNote?: string }
 const sermons: Sermon[] = [
@@ -36,21 +37,6 @@ const groups = [
 ]
 const categories = ['All topics', ...groups.map(g=>g.name)]
 
-function sermonDevelopment(sermon: Sermon) {
- return [
-  { heading: 'The biblical foundation', body: sermon.explanation + ' This teaching must be received within the whole counsel of Scripture. Begin with what the passage actually says, observe its setting and argument, and allow clearer passages to illuminate difficult ones. The aim is not to force a preferred system onto the text, but to hear the message of Scripture faithfully.' },
-  ...sermon.outline.map((point, index) => ({
-   heading: point,
-   body: index === 0
-    ? 'The first movement establishes the foundation for everything that follows. Christian teaching begins with God’s initiative and revelation, not human speculation or self-improvement. Consider the original audience, the situation being addressed, and the words the biblical author chose. Ask what this truth reveals about God’s character, His purposes and His relationship with His people.'
-    : index === sermon.outline.length - 1
-    ? 'The final movement brings the teaching into the life of the believer and the gathered church. Biblical truth is meant to form worship, character, relationships and faithful service. Application must grow out of the meaning of the passage; it should neither promise what Scripture has not promised nor reduce the gospel to a list of human achievements. The proper response is faith expressed through obedience, love and dependence upon God.'
-    : 'This part of the message develops the central theme rather than treating it as an isolated idea. Trace how the teaching connects with the wider biblical story, and notice both its continuity with earlier revelation and its development in the work of Jesus Christ. The doctrine has practical consequences: it shapes what believers trust, how they understand themselves, how they treat others and how they participate in the mission of God. Read the supporting references in context and allow their different emphases to enrich, rather than flatten, the message.'
-  })),
-  { heading: 'The Christ-centred and theological conclusion', body: 'The Christian faith is centred on the person and work of Jesus Christ. Therefore, this subject must be understood in relation to His incarnation, teaching, death, resurrection, exaltation and promised return. The church does not merely study a topic to gain religious information; it learns to see the glory of God in Christ and to live as a people shaped by that truth. Where the passage gives a command, respond in the strength God supplies. Where it gives a promise, receive it with faith while respecting its biblical context. Where it exposes sin, turn to God in repentance. Where it reveals grace, give thanks and extend that grace to others.' },
-  { heading: 'Pastoral application and response', body: 'Bring the message into ordinary life. Consider how it should shape private devotion, family life, church relationships, work, the use of authority, care for vulnerable people and witness to the world. Avoid measuring spiritual maturity only by knowledge, activity or public visibility. The test is whether the truth is producing deeper trust in God, Christlike character, love for neighbour and perseverance in obedience. Invite hearers to examine their response honestly and to take a concrete step of faithfulness.' }
- ]
-}
 export default function SermonLibrary() {
  const [selected,setSelected] = useState(sermons[0].title)
  const [category,setCategory] = useState('All topics')
@@ -69,7 +55,7 @@ export default function SermonLibrary() {
    <article className="card min-w-0 space-y-5 p-5 sm:p-6">
     <div><p className="eyebrow">Sermon study guide</p><h2 className="mt-2 font-display text-2xl sm:text-3xl">{current.title}</h2><p className="mt-2 text-sm font-medium leading-6 text-gold-700 dark:text-gold-400">{current.theme}</p></div>
     <section><h3 className="font-display text-lg">Understanding the topic</h3><p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">{current.explanation}</p></section>
-    <section className="space-y-4"><div><h3 className="font-display text-lg">Full sermon manuscript and theological exposition</h3><p className="mt-1 text-xs leading-5 text-slate-500">Develop this message as a complete sermon. Read the cited passages aloud, explain them in context, and allow time for reflection and response.</p></div>{sermonDevelopment(current).map((part,i)=><div key={part.heading} className="space-y-2"><h4 className="font-semibold text-sm text-gold-700 dark:text-gold-400">{i+1}. {part.heading}</h4><p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{part.body}</p></div>)}</section>
+    <section className="space-y-5"><div><h3 className="font-display text-lg">Full sermon manuscript and theological exposition</h3><p className="mt-1 text-xs leading-5 text-slate-500">A topic-specific sermon developed through biblical exposition, theological reflection and pastoral application. Read the cited passages in full and pause for response.</p></div>{(sermonManuscripts[current.title] ?? []).map((part,i)=><div key={part.heading} className="space-y-2"><h4 className="font-semibold text-sm text-gold-700 dark:text-gold-400">{i+1}. {part.heading}</h4><p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{part.body}</p></div>)}</section>
     <section><h3 className="font-display text-lg">Suggested teaching outline</h3><ol className="mt-2 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300">{current.outline.map(x=><li key={x}>{x}</li>)}</ol></section>
     <section className="rounded-xl bg-slate-50 p-4 dark:bg-white/5"><h3 className="font-display text-lg">Scripture references</h3><p className="mt-2 text-sm leading-7">{current.scriptures}</p><p className="mt-2 text-xs text-slate-500">Read each reference in its paragraph and book context. These references are a study pathway, not a substitute for reading the passages themselves.</p></section>
     <section><h3 className="font-display text-lg">Word study: Hebrew and Greek</h3><p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">{current.words}</p><p className="mt-2 text-xs text-slate-500">Transliterations are simplified. A word’s meaning is determined by usage and context, not by a dictionary gloss alone.</p></section>
