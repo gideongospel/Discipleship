@@ -81,48 +81,48 @@ const contextGuides = [
   ['How to use historical parallels responsibly', 'Use a three-step method: (1) establish what the biblical passage says in context; (2) compare a well-attested ancient text, artefact or custom and note both parallels and differences; (3) explain how the comparison illuminates—not overrides—the biblical message. Label scholarly proposals as proposals, and note where evidence is debated.', 'Apply this method throughout Genesis, Exodus, Psalms, Prophets, Gospels and Revelation'],
 ]
 
-const tabs = ['Reading Plan', 'Book & Chapter Tips', 'Across the Canon', 'Social & Historical Context', 'Ancient Cosmology'] as const
+const tabs = ['Guided Study', 'Book & Chapter Tips', 'Across the Canon', 'Social & Historical Context', 'Ancient Cosmology'] as const
 type Tab = (typeof tabs)[number]
 
 export default function BibleStudyPlan() {
-  const [tab, setTab] = useState<Tab>('Reading Plan')
+  const [tab, setTab] = useState<Tab>('Guided Study')
   const [day, setDay] = useState(1)
   const [done, setDone] = useState<number[]>([])
   useEffect(() => {
-    try { setDone(JSON.parse(localStorage.getItem('discipleship-bible-plan-30') || '[]') as number[]) } catch { setDone([]) }
+    try { setDone(JSON.parse(localStorage.getItem('discipleship-bible-study-sessions') || localStorage.getItem('discipleship-bible-plan-30') || '[]') as number[]) } catch { setDone([]) }
   }, [])
   const toggleDone = (n: number) => {
     const next = done.includes(n) ? done.filter((x) => x !== n) : [...done, n]
     setDone(next)
-    try { localStorage.setItem('discipleship-bible-plan-30', JSON.stringify(next)) } catch { /* progress remains in this session */ }
+    try { localStorage.setItem('discipleship-bible-study-sessions', JSON.stringify(next)) } catch { /* progress remains in this session */ }
   }
   const selected = plan[day - 1]
 
   return <div className="space-y-6">
     <header>
       <p className="eyebrow">Scripture study pathway</p>
-      <h1 className="page-title mt-3">Bible Plan & Canon Guide</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Read Scripture as one unfolding, Christ-centred story. This guided 30-day plan pairs the Old Testament, Psalms and New Testament, with practical reading tips and carefully noted connections across the Canon.</p>
+      <h1 className="page-title mt-3">Bible Study & Canon Guide</h1>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Read Scripture as one unfolding, Christ-centred story. This is a flexible pathway of 30 guided study sessions—not a deadline or a promise to finish the Bible in 30 days or one year. Take the time needed to understand the text, its world, and its connections across the Canon.</p>
     </header>
     <div className="rounded-2xl border border-gold-500/30 bg-gold-500/5 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-sm font-semibold">30-day guided plan</p><p className="mt-1 text-xs text-slate-500">Progress saved on this device/browser.</p></div>
-        <p className="text-sm font-semibold tabular-nums">{done.length} / 30 completed</p>
+        <div><p className="text-sm font-semibold">30 guided study sessions · self-paced</p><p className="mt-1 text-xs text-slate-500">A session may take one sitting or several. Progress is saved on this device/browser.</p></div>
+        <p className="text-sm font-semibold tabular-nums">{done.length} / 30 sessions</p>
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10"><div className="h-full rounded-full bg-gold-500 transition-all" style={{ width: `${done.length / 30 * 100}%` }} /></div>
     </div>
     <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
       {tabs.map((t) => <button key={t} onClick={() => setTab(t)} className={`px-3 py-2 text-sm font-semibold ${tab === t ? 'border-b-2 border-gold-500 text-slate-950 dark:text-white' : 'text-slate-500'}`}>{t}</button>)}
     </div>
-    {tab === 'Reading Plan' && <div className="grid gap-4 lg:grid-cols-[15rem_1fr]">
-      <div className="card p-3"><p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Choose a day</p><div className="grid grid-cols-5 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">{plan.map((p) => <button key={p.day} onClick={() => setDay(p.day)} aria-label={`Day ${p.day}`} className={`rounded-lg border p-2 text-sm ${day === p.day ? 'border-gold-500 bg-gold-500/10 font-bold' : 'border-slate-200 dark:border-white/10'} ${done.includes(p.day) ? 'text-emerald-600' : ''}`}>{done.includes(p.day) ? '✓ ' : ''}{p.day}</button>)}</div></div>
+    {tab === 'Guided Study' && <div className="grid gap-4 lg:grid-cols-[15rem_1fr]">
+      <div className="card p-3"><p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Choose a session</p><div className="grid grid-cols-5 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">{plan.map((p) => <button key={p.day} onClick={() => setDay(p.day)} aria-label={`Study session ${p.day}`} className={`rounded-lg border p-2 text-sm ${day === p.day ? 'border-gold-500 bg-gold-500/10 font-bold' : 'border-slate-200 dark:border-white/10'} ${done.includes(p.day) ? 'text-emerald-600' : ''}`}>{done.includes(p.day) ? '✓ ' : ''}{p.day}</button>)}</div></div>
       <article className="card space-y-4 p-5">
-        <div><p className="eyebrow">Day {selected.day} · {done.length} days completed</p><h2 className="mt-2 font-display text-2xl">{selected.theme}</h2></div>
+        <div><p className="eyebrow">Study session {selected.day} · {done.length} sessions completed</p><h2 className="mt-2 font-display text-2xl">{selected.theme}</h2></div>
         <div className="grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">Old Testament</p><p className="mt-1 font-semibold">{selected.old}</p></div><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">Psalm / Wisdom</p><p className="mt-1 font-semibold">{selected.psalm}</p></div><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">New Testament</p><p className="mt-1 font-semibold">{selected.new}</p></div></div>
-        <div><h3 className="text-sm font-semibold">Reading tip</h3><p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{selected.practice}</p></div>
+        <div><h3 className="text-sm font-semibold">Reading tip</h3><p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{selected.practice}</p><p className="mt-2 text-xs leading-5 text-slate-500">Pace note: pause, reread, consult context, or spend additional sessions on this passage whenever needed. Moving forward is not a race.</p></div>
         <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10"><p className="text-sm font-semibold">A simple study rhythm</p><ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300"><li>Pray for understanding; read the whole assigned section.</li><li>Observe repeated words, structure, speaker and audience.</li><li>Ask what it meant in its original setting before asking how it applies.</li><li>Trace any cross-reference in its own paragraph and book.</li><li>Respond in faith, obedience, prayer or practical love.</li></ol></div>
-        <button className="btn-primary" onClick={() => toggleDone(day)}>{done.includes(day) ? 'Mark day as not completed' : 'Mark reading complete'}</button>
-        <div className="flex justify-between gap-3"><button className="btn-secondary" disabled={day === 1} onClick={() => setDay((d) => d - 1)}>Previous day</button><button className="btn-secondary" disabled={day === 30} onClick={() => setDay((d) => d + 1)}>Next day</button></div>
+        <button className="btn-primary" onClick={() => toggleDone(day)}>{done.includes(day) ? 'Mark session as not completed' : 'Mark session complete'}</button>
+        <div className="flex justify-between gap-3"><button className="btn-secondary" disabled={day === 1} onClick={() => setDay((d) => d - 1)}>Previous session</button><button className="btn-secondary" disabled={day === 30} onClick={() => setDay((d) => d + 1)}>Next session</button></div>
       </article>
     </div>}
     {tab === 'Book & Chapter Tips' && <div className="space-y-3"><div className="card p-5"><h2 className="font-display text-xl">Before you read any chapter</h2><ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300"><li>Locate the chapter in the book’s argument and historical setting.</li><li>Identify genre: narrative, law, poetry, wisdom, prophecy, Gospel, letter or apocalyptic vision.</li><li>Read the paragraph before and after; chapter and verse divisions were added later.</li><li>Ask who speaks, to whom, why, and what problem or hope is addressed.</li><li>Mark repeated words, contrasts, quotations, covenant language and turning points.</li><li>Distinguish what the text says from what you infer; consult several translations where wording is difficult.</li><li>Use cross-references as invitations to investigate, not as substitutes for context.</li></ul></div><div className="grid gap-3 md:grid-cols-2">{bookGuides.map(([book,tip,refs]) => <article key={book} className="card space-y-2 p-4"><h3 className="font-display text-lg">{book}</h3><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{tip}</p><div className="border-t border-slate-100 pt-2 dark:border-white/10"><p className="text-xs font-semibold text-gold-700 dark:text-gold-400">Canonical pathways</p><p className="mt-1 text-sm">{refs}</p></div></article>)}</div></div>}
@@ -130,6 +130,6 @@ export default function BibleStudyPlan() {
 
     {tab === 'Social & Historical Context' && <div className="space-y-3"><div className="card p-5"><h2 className="font-display text-xl">Read Scripture in its lived world</h2><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Historical background helps explain a passage’s social texture; it does not replace inspired Scripture or determine its meaning by itself. The notes below are concise introductions. Study the biblical text first, then consult reliable historical and archaeological resources for deeper work.</p></div>{contextGuides.slice(0,8).map(([title,detail,refs]) => <article key={title} className="card space-y-2 p-4"><h3 className="font-display text-lg">{title}</h3><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{detail}</p><p className="border-t border-slate-100 pt-2 text-sm dark:border-white/10"><span className="font-semibold text-gold-700 dark:text-gold-400">Study passages: </span>{refs}</p></article>)}</div>}
     {tab === 'Ancient Cosmology' && <div className="space-y-3"><div className="card p-5"><h2 className="font-display text-xl">Ancient cosmology and biblical imagery</h2><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Ancient cosmology studies how people in the biblical world described the cosmos and its meaning. Biblical writers often communicate through poetry, metaphor, vision and the ordinary language of their time. The purpose here is to understand the imagery faithfully—not to make Scripture a modern science textbook or to treat ancient context as proof that its theology is borrowed.</p><p className="mt-3 text-sm font-semibold">Reading safeguards</p><ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300"><li>Identify genre and literary purpose before drawing cosmological conclusions.</li><li>Distinguish what the passage explicitly says from a reconstruction of its background.</li><li>Compare biblical texts with ancient sources only when evidence is reliable and relevant.</li><li>Note where scholars disagree; do not present hypotheses as settled facts.</li><li>Ask what the imagery reveals about God, creation, order, worship, human vocation and hope.</li></ul></div>{contextGuides.slice(8).map(([title,detail,refs]) => <article key={title} className="card space-y-2 p-4"><h3 className="font-display text-lg">{title}</h3><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{detail}</p><p className="border-t border-slate-100 pt-2 text-sm dark:border-white/10"><span className="font-semibold text-gold-700 dark:text-gold-400">Study passages: </span>{refs}</p></article>)}</div>}
-    <footer className="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-500 dark:bg-white/5">Study note: These pathways are study aids, not a claim that every pair is a direct prediction or quotation. Read each passage in context, compare reliable translations, and let clearer textual links guide more tentative thematic connections. Scripture quotations are not reproduced in full here; references are provided for reading in your preferred Bible.</footer>
+    <footer className="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-500 dark:bg-white/5">Study note: This is a flexible study pathway, not a completion deadline. A separate Bible-in-a-year reading schedule may help readers cover the text, but reading through Scripture and studying it deeply are different aims. These pathways are study aids, not a claim that every pair is a direct prediction or quotation. Read each passage in context, compare reliable translations, and let clearer textual links guide more tentative thematic connections. Scripture quotations are not reproduced in full here; references are provided for reading in your preferred Bible.</footer>
   </div>
 }
