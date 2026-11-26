@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck,
-  ShieldCheck, Settings, BarChart3, LogOut, type IconType,
+  ShieldCheck, Settings, BarChart3, BookOpen, LogOut, type IconType,
 } from '../ui/icons'
 import { NAV_ITEMS } from '../../utils/nav'
 import { useAuth } from '../../context/AuthContext'
@@ -10,7 +10,7 @@ import Wordmark from '../brand/Wordmark'
 import Avatar from '../ui/Avatar'
 
 const ICONS: Record<string, IconType> = {
-  LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck, ShieldCheck, Settings, BarChart3,
+  LayoutDashboard, Users, UserPlus, Megaphone, CalendarClock, ClipboardCheck, ShieldCheck, Settings, BarChart3, BookOpen,
 }
 
 // Always ink-black, in light and dark mode alike — the brand's anchor.
@@ -36,7 +36,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             {items
               .filter((i) => i.group === group)
               .map((item) => {
-                const Icon = ICONS[item.icon]
+                const Icon = ICONS[item.icon] ?? BookOpen
                 return (
                   <NavLink
                     key={item.to}
@@ -73,7 +73,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-[0.82rem] font-semibold text-white">{profile.name}</p>
           <p className="font-brand text-[0.56rem] font-bold uppercase tracking-[0.24em] text-gold-400">
-            {profile.role === 'administrator' ? 'Administrator' : 'Worker'}
+            {profile.loginId === '1156' && profile.role === 'administrator' ? 'Main Administrator' : profile.role === 'administrator' ? 'Administrator' : 'Worker'}
           </p>
         </div>
         <button onClick={logout} title="Sign out" aria-label="Sign out" className="p-1 text-slate-500 transition-colors duration-200 hover:text-white">

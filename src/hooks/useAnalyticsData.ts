@@ -3,34 +3,51 @@ import { useAuth } from '../context/AuthContext'
 import { listDisciples } from '../services/discipleService'
 import { listEvangelismRecords } from '../services/evangelismService'
 import { listFollowUps } from '../services/followUpService'
-import { listAttendanceSessions } from '../services/attendanceService'
+import { listAttendanceSessions, listAllAttendanceRecords, type AttendanceRecord } from '../services/attendanceService'
+import { listOutreachActivities, type OutreachActivity } from '../services/outreachActivityService'
 import type { Disciple, EvangelismRecord, FollowUp, AttendanceSession } from '../types'
+import { getFollowUpSettings, DEFAULT_FOLLOW_UP_SETTINGS, type FollowUpSettings } from '../services/followUpSettingsService'
 import { SPIRITUAL_STATUS_LABELS, RECEPTIVITY_LABELS, SERVICE_TYPE_LABELS } from '../types'
 
 export function useAnalyticsData() {
   const { profile } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [disciples, setDisciples] = useState<Disciple[]>([])
   const [evangelism, setEvangelism] = useState<EvangelismRecord[]>([])
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
   const [sessions, setSessions] = useState<AttendanceSession[]>([])
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
+  const [generalOutreach, setGeneralOutreach] = useState<OutreachActivity[]>([])
+  const [followUpSettings, setFollowUpSettings] = useState<FollowUpSettings>(DEFAULT_FOLLOW_UP_SETTINGS)
 
   useEffect(() => {
     if (!profile) return
     let cancelled = false
+    setLoading(true)
+    setError('')
     Promise.all([
       listDisciples(profile),
       listEvangelismRecords(profile),
       listFollowUps(profile),
       listAttendanceSessions(),
-    ]).then(([d, e, f, s]) => {
+      listOutreachActivities(profile),
+      listAllAttendanceRecords(profile),
+      getFollowUpSettings(),
+      ]).then(([d, e, f, s, outreach, attendance, thresholds]) => {
       if (cancelled) return
       setDisciples(d)
       setEvangelism(e)
       setFollowUps(f)
       setSessions(s)
-      setLoading(false)
-    })
+      setGeneralOutreach(outreach)
+      setAttendanceRecords(attendance)
+      setFollowUpSettings(thresholds)
+    }).catch((cause) => {
+      if (cancelled) return
+      console.error('Reports data loading failed:', cause)
+      setError(cause instanceof Error ? cause.message : 'Reports data could not be loaded. Check your Firebase access and try again.')
+    }).finally(() => { if (!cancelled) setLoading(false) })
     return () => {
       cancelled = true
     }
@@ -62,7 +79,7 @@ export function useAnalyticsData() {
   })).filter((d) => d.value > 0)
 
   // Follow-up status breakdown
-  const followUpStatusData = ['scheduled', 'completed', 'missed', 'rescheduled'].map((status) => ({
+  const followUpStatusData = ['scheduled', 'completed', 'missed', 'rescheduled', 'postponed', 'pending'].map((status) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
     value: followUps.filter((f) => f.status === status).length,
   })).filter((d) => d.value > 0)
@@ -88,6 +105,14 @@ export function useAnalyticsData() {
 
   return {
     loading,
+    error,
+    disciples,
+    evangelism,
+    followUps,
+    sessions,
+    attendanceRecords,
+    generalOutreach,
+    followUpSettings,
     spiritualStatusData,
     receptivityData,
     outcomeData,
@@ -97,5 +122,8 @@ export function useAnalyticsData() {
     followUpCompletionRate,
     totalDisciples: disciples.length,
     totalEvangelismRecords: evangelism.length,
+    totalGeneralOutreach: generalOutreach.length,
+    peopleReached: generalOutreach.reduce((sum, record) => sum + (record.peopleReached || 0), 0),
+    newDisciplesIdentified: generalOutreach.reduce((sum, record) => sum + (record.newDisciplesIdentified || 0), 0),
   }
 }

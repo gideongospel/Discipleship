@@ -51,12 +51,14 @@ export async function createFollowUp(input: FollowUpInput, actor: AppUser) {
 
 export async function updateFollowUp(id: string, input: Partial<FollowUpInput>, actor: AppUser) {
   await updateDoc(doc(db, 'followUps', id), { ...input, updatedAt: serverTimestamp() })
-  if (input.status === 'completed' && input.discipleId && input.completedDate) {
+  if (input.discipleId && input.status === 'completed' && input.completedDate) {
     await updateDisciple(
       input.discipleId,
-      { lastFollowUpDate: input.completedDate, nextFollowUpDate: input.nextStepDate },
+      { lastFollowUpDate: input.completedDate, nextFollowUpDate: input.nextStepDate ?? '' },
       actor,
     )
+  } else if (input.discipleId && input.scheduledDate && ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(input.status ?? '')) {
+    await updateDisciple(input.discipleId, { nextFollowUpDate: input.scheduledDate }, actor)
   }
   await logAudit({
     actorId: actor.uid,

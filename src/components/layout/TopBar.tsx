@@ -22,7 +22,7 @@ export default function TopBar({ onSearch }: { onSearch: () => void }) {
 
   // Needs attention = scheduled follow-ups that are overdue or due within 3 days.
   const due = followUps
-    .filter((f) => f.status === 'scheduled' && daysFromToday(f.scheduledDate) <= 3)
+    .filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status) && daysFromToday(f.scheduledDate) <= 3)
     .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
 
   const iconBtn =

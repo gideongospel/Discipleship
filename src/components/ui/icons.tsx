@@ -180,6 +180,15 @@ export const Alert = icon(
   </>,
 )
 
+/** An open book — teaching and shared prayer resources. */
+export const BookOpen = icon(
+  <>
+    <path d="M12 6.5 C9.5 4.5 6.5 4.5 3 5.5 V19 C6.5 18 9.5 18 12 20" />
+    <path d="M12 6.5 C14.5 4.5 17.5 4.5 21 5.5 V19 C17.5 18 14.5 18 12 20" />
+    <path d="M12 6.5 V20" />
+  </>,
+)
+
 // ── Aliases (so call-sites read naturally and stay short) ─────────────
 export {
   Threshold as LayoutDashboard,

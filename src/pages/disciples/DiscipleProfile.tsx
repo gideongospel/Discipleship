@@ -113,6 +113,31 @@ export default function DiscipleProfile() {
       </div>
 
       <div className="card p-5">
+        <h2 className="mb-3 font-display text-xl font-medium">Contact this disciple</h2>
+        <div className="flex flex-wrap gap-2">
+          {disciple.phone && <a className="btn-secondary" href={`tel:${disciple.phone.replace(/[^+\d]/g, '')}`}>Call</a>}
+          {disciple.phone && <a className="btn-secondary" href={`https://wa.me/${whatsappNumber(disciple.phone)}`} target="_blank" rel="noreferrer">WhatsApp</a>}
+          {disciple.email && <a className="btn-secondary" href={`mailto:${encodeURIComponent(disciple.email.trim())}`}>Email</a>}
+          {!disciple.phone && !disciple.email && <p className="text-sm text-slate-500">No contact details have been saved for this disciple.</p>}
+        </div>
+        <p className="mt-2 text-xs text-slate-500">Contact links open your device's calling, WhatsApp or email application. Messages are sent only when you choose to send them.</p>
+      </div>
+
+      <div className="card p-5">
+        <h2 className="mb-3 font-display text-xl font-medium">Meeting Attendance History</h2>
+        {sessions.filter((session) => session.date >= disciple.dateFirstContacted).length === 0 ? (
+          <p className="text-sm text-slate-500">No meeting sessions have been recorded since this disciple was first contacted.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {[...sessions].filter((session) => session.date >= disciple.dateFirstContacted).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12).map((session) => {
+              const attended = session.presentDiscipleIds.includes(disciple.id)
+              return <li key={session.id} className="flex items-center justify-between gap-3 py-3 text-sm"><span><span className="block font-medium">{session.title || session.serviceType.replace(/_/g, ' ')}</span><span className="text-xs text-slate-500">{session.date}</span></span><span className={`tag ${attended ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'}`}>{attended ? 'Present' : 'Absent'}</span></li>
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div className="card p-5">
         <h2 className="mb-3 font-display text-xl font-medium">Evangelism & Follow-up History</h2>
         {records.length === 0 ? (
           <EmptyState title="No outreach recorded">Visits and conversations with this person will appear here.</EmptyState>
@@ -137,6 +162,12 @@ export default function DiscipleProfile() {
       </div>
     </div>
   )
+}
+
+function whatsappNumber(phone: string) {
+  let digits = phone.replace(/\D/g, '')
+  if (digits.length === 11 && digits.startsWith('0')) digits = `234${digits.slice(1)}`
+  return digits
 }
 
 function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {

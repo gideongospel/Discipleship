@@ -219,3 +219,45 @@ A deliberately non-generic, editorial system. The principles, so future changes 
 - **Dark by default** on first visit; the toggle persists.
 - **Command palette**: Ctrl/Cmd + K. **Notifications bell**: follow-ups overdue or due within 3 days.
 - The login tagline lives in `src/components/brand/AuthShell.tsx`.
+
+
+## Incremental church operations upgrade
+
+The `feature/church-events-calendar` branch adds the following without replacing the existing data model:
+
+- **Announcements & Events** at `/events`: administrator-managed regular meeting templates and special programmes, draft/published/archived states, and published events on the dashboard.
+- **Calendar export**: user-initiated Google Calendar links and downloadable ICS files. These do not write to a user's calendar automatically. When an event changes, users must update or remove their saved calendar copy.
+- **General Evangelism Activities** at `/outreach-activities`: separate team activity records with dates, times, workers, people reached and outcomes. These are not attendance records or individual disciple conversations.
+- **Follow-up improvements**: purpose, time, method, notes, edit-in-place, and pending/postponed/missed/completed outcomes. Existing follow-up documents remain readable.
+- **Attendance records**: new `attendanceRecords` documents record the attendee, meeting, recorder and recording method. Existing `attendanceSessions` and their `presentDiscipleIds` remain the source for legacy attendance summaries; no backfill is required. New session IDs are deterministic to reduce duplicate meeting creation.
+- **Dashboard and reports**: upcoming published events, calendar actions, general outreach totals and the expanded follow-up lifecycle.
+- **In-app reminders**: one-time-per-user pop-ups for overdue/due-today follow-ups and events today/tomorrow. Dismissed alerts are remembered in that browser.
+
+### Deploying the Firestore additions
+
+After the code change is reviewed and merged, deploy the updated Firestore rules and indexes to the existing Firebase project:
+
+```bash
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+The new collections are `churchEvents`, `outreachActivities`, and `attendanceRecords`. They are created automatically when the first corresponding record is saved. Existing collections and documents are not migrated or deleted.
+
+
+### Reporting, shepherding and church resources
+
+- **Monthly and annual reports** at `/reports`: date-scoped summaries, worker/member filters, recorded attendance calculations, CSV export and print. Member attendance is measured from the first-contact date; worker attendance uses explicit self-attendance records. These are activity summaries, not spiritual assessments.
+- **Shepherding reminders**: the dashboard surfaces follow-ups due today, overdue follow-ups and disciples with no follow-up recorded in the last 30 days. The 30-day value is currently a code-level default, not an administrator-configurable setting.
+- **Encouragement**: the dashboard rotates through Scripture-grounded reminders using 1 Corinthians 15:58, Hebrews 6:10, Galatians 6:9, Colossians 3:23–24 and 1 Thessalonians 1:3.
+- **Meeting Excerpts & Prayer Points** at `/meeting-library`: authorised administrators can draft, publish, edit and archive Sunday Service / Wednesday Bible Study teaching highlights and categorised church prayer focuses. Members can read and share published resources and mark a prayer focus as prayed about. This is not treated as evidence of an answered prayer.
+- **Disciple contact actions**: profiles expose device-initiated call, WhatsApp and email links using saved contact details. The app does not send messages automatically.
+- **Notifications**: in-app alerts cover due/overdue follow-ups, events today/tomorrow and recent teaching or prayer resources. Seen alert IDs are stored locally per user; these are not remote push notifications.
+
+The new `churchResources` collection is created when the first excerpt or prayer point is saved. The `attendanceRecords` collection stores explicit attendance metadata; older session records continue to be supported through `attendanceSessions`.
+
+### Remaining security decision before delegated administrators
+
+The existing application has a single `administrator` role and the first-run system document currently stores only `adminCreated`, not a verified main-administrator UID. A safe delegated-admin implementation must first designate the existing account that will own the platform. Do not simply let any current administrator claim the main role or weaken the current rules. Once the main administrator account is explicitly identified, the role/permission changes can be enforced in Firestore rules and the Admin Panel.
+
+- **Configurable shepherding thresholds**: administrators can set the no-contact interval, missed-meeting reminder threshold and new-convert follow-up interval under Settings. Defaults are 30 days, three missed meetings and seven days. These are operational reminders only.
+- The `appSettings/followUp` document is created when an administrator first saves the thresholds; until then, the app uses safe in-code defaults.

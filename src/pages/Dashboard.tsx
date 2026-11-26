@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { greeting, longDate, daysFromToday, relativeDay } from '../utils/format'
 import { SPIRITUAL_STATUS_LABELS, type SpiritualStatus } from '../types'
 import { statusBadgeColor } from '../utils/constants'
+import { downloadIcs, googleCalendarUrl } from '../utils/calendarExport'
 
 // The path a disciple walks, in order.
 const JOURNEY: { key: SpiritualStatus; label: string }[] = [
@@ -23,6 +24,14 @@ const JOURNEY: { key: SpiritualStatus; label: string }[] = [
 ]
 
 const rule = 'border-slate-200 dark:border-white/[0.09]'
+
+const ENCOURAGEMENTS = [
+  { reference: '1 Corinthians 15:58', text: 'Be steadfast and keep abounding in the work of the Lord. Faithful labour in Christ is not in vain.' },
+  { reference: 'Hebrews 6:10', text: 'God does not forget the work and love shown in serving His people. Continue to serve with a willing heart.' },
+  { reference: 'Galatians 6:9', text: 'Do not grow weary in doing good. Keep sowing faithfully, trusting God for the increase in His time.' },
+  { reference: 'Colossians 3:23–24', text: 'Serve wholeheartedly, as service rendered to the Lord. Let your work be marked by sincerity and love.' },
+  { reference: '1 Thessalonians 1:3', text: 'Remember the work produced by faith, the labour prompted by love, and the endurance inspired by hope in our Lord Jesus Christ.' },
+]
 
 function Marker({ filled, delay, className = '' }: { filled: boolean; delay: number; className?: string }) {
   return (
@@ -40,11 +49,13 @@ export default function Dashboard() {
   const stats = useDashboardStats()
 
   if (stats.loading) return <PageLoader rows={5} />
+  if (stats.error) return <div className="card space-y-3 p-6"><h1 className="page-title">Dashboard could not load</h1><p className="text-sm text-slate-600 dark:text-slate-300">{stats.error}</p><p className="text-xs text-slate-500">If this is a Firebase permission error, the deployed Firestore rules may not yet include the collections used by this page.</p><button className="btn-primary" onClick={() => window.location.reload()}>Reload page</button></div>
 
-  const overdue = stats.followUps.filter((f) => f.status === 'scheduled' && daysFromToday(f.scheduledDate) < 0).length
+  const overdue = stats.followUps.filter((f) => ['scheduled', 'postponed', 'pending', 'rescheduled'].includes(f.status) && daysFromToday(f.scheduledDate) < 0).length
   const stageCount = (k: SpiritualStatus) => stats.disciples.filter((d) => d.spiritualStatus === k).length
   const total = stats.totalDisciples || 1
   const first = profile?.name?.split(' ')[0]
+  const encouragement = ENCOURAGEMENTS[new Date().getDate() % ENCOURAGEMENTS.length]
 
   const headline =
     overdue > 0
@@ -130,6 +141,66 @@ export default function Dashboard() {
             )
           })}
         </ol>
+      </section>
+
+      {/* Church calendar */}
+      <section>
+        <div className={`mb-5 flex items-baseline justify-between border-b pb-3 ${rule}`}>
+          <div><p className="eyebrow">Church calendar</p><h2 className="mt-2 font-display text-xl font-medium">Upcoming meetings &amp; programmes</h2></div>
+          <Link to="/events" className="link-u text-xs font-semibold uppercase tracking-[0.14em]">All events</Link>
+        </div>
+        {stats.upcomingEvents.length === 0 ? (
+          <p className="py-4 text-sm text-slate-500">No published upcoming events.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {stats.upcomingEvents.map((event) => (
+              <article key={event.id} className="card flex flex-col justify-between gap-3 p-4">
+                <div><p className="eyebrow">{event.date} · {event.startTime}</p><h3 className="mt-1 font-display text-lg">{event.title}</h3><p className="mt-1 text-xs text-slate-500">{event.venue || 'Venue to be announced'}</p></div>
+                <div className="flex flex-wrap gap-2">
+                  <button className="btn-secondary !px-2.5 !py-1.5 !text-xs" onClick={() => window.open(googleCalendarUrl(event), '_blank', 'noopener,noreferrer')}>Add to Google Calendar</button>
+                  <button className="btn-secondary !px-2.5 !py-1.5 !text-xs" onClick={() => downloadIcs(event)}>Download .ics</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Shepherding priorities */}
+      <section className="grid gap-5 lg:grid-cols-2">
+        <div className="card space-y-4 p-5">
+          <div><p className="eyebrow">Personal care</p><h2 className="mt-2 font-display text-xl">Shepherding priorities</h2><p className="mt-1 text-xs text-slate-500">Practical reminders from recorded activity, not judgements about spiritual maturity.</p></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.followUpsDueToday.length}</p><p className="text-xs text-slate-500">Follow-ups due today</p></div>
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.overdueFollowUps.length}</p><p className="text-xs text-slate-500">Overdue follow-ups</p></div>
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.missedMeetingDisciples.length}</p><p className="text-xs text-slate-500">Repeated meeting absences</p></div>
+            <div className="rounded-lg bg-slate-50 p-3 dark:bg-white/[0.04]"><p className="num font-display text-3xl">{stats.newConvertsNeedingFollowUp.length}</p><p className="text-xs text-slate-500">New converts to contact</p></div>
+          </div>
+          {stats.neglectedDisciples.length ? (
+            <div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">No recent follow-up recorded (30+ days)</p>
+              <div className="space-y-2">{stats.neglectedDisciples.slice(0, 6).map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.03]"><span className="min-w-0 truncate font-medium">{disciple.name}</span><span className="shrink-0 text-xs text-gold-700 dark:text-gold-400">Contact today →</span></Link>)}</div>
+            </div>
+          ) : <p className="text-sm text-slate-500">No disciples currently meet the {stats.followUpSettings.neglectAfterDays}-day follow-up reminder threshold.</p>}
+          {stats.newConvertsNeedingFollowUp.length > 0 && <div><p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">New converts needing a check-in</p><div className="flex flex-wrap gap-2">{stats.newConvertsNeedingFollowUp.slice(0, 6).map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="tag">{disciple.name}</Link>)}</div></div>}
+          {stats.missedMeetingDisciples.length > 0 && <div><p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Several meetings missed</p><div className="flex flex-wrap gap-2">{stats.missedMeetingDisciples.slice(0, 6).map((disciple) => <Link key={disciple.id} to={`/disciples/${disciple.id}`} className="tag">{disciple.name}</Link>)}</div></div>}
+          <Link to="/follow-ups" className="link-u inline-flex text-xs font-semibold uppercase tracking-wide">Open follow-up tracker</Link>
+        </div>
+        <div className="card flex flex-col justify-between gap-4 p-5">
+          <div><p className="eyebrow">Encouragement of the day</p><h2 className="mt-2 font-display text-xl">Your labour matters</h2><p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">“{encouragement.text}”</p></div>
+          <p className="text-xs font-semibold text-gold-700 dark:text-gold-400">{encouragement.reference}</p>
+        </div>
+      </section>
+
+      {/* Latest teaching highlights and prayer focus */}
+      <section className="grid gap-5 lg:grid-cols-2">
+        <div className="card p-5">
+          <div className="mb-3 flex items-center justify-between"><div><p className="eyebrow">Learn &amp; reflect</p><h2 className="mt-2 font-display text-xl">Latest teaching highlights</h2></div><Link to="/meeting-library" className="link-u text-xs font-semibold">Archive</Link></div>
+          {stats.latestExcerpts.length ? stats.latestExcerpts.map((item) => <Link key={item.id} to="/meeting-library" className="block border-t border-slate-100 py-3 dark:border-white/10"><p className="text-xs text-slate-500">{item.date} · {item.meetingType === 'bible_study' ? 'Wednesday Bible Study' : item.meetingType === 'sunday_service' ? 'Sunday Service' : 'Special Programme'}</p><p className="mt-1 font-semibold">{item.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.excerpt}</p></Link>) : <p className="py-4 text-sm text-slate-500">No teaching highlights have been published yet.</p>}
+        </div>
+        <div className="card p-5">
+          <div className="mb-3 flex items-center justify-between"><div><p className="eyebrow">Pray together</p><h2 className="mt-2 font-display text-xl">Current church prayer points</h2></div><Link to="/meeting-library" className="link-u text-xs font-semibold">Prayer list</Link></div>
+          {stats.currentPrayerPoints.length ? stats.currentPrayerPoints.map((item) => <Link key={item.id} to="/meeting-library" className="block border-t border-slate-100 py-3 dark:border-white/10"><p className="text-xs text-slate-500">{item.category}</p><p className="mt-1 font-semibold">{item.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.description}</p></Link>) : <p className="py-4 text-sm text-slate-500">No active prayer points have been published.</p>}
+        </div>
       </section>
 
       {/* Two ledgers */}

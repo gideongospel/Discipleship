@@ -6,6 +6,9 @@ import {
   createAttendanceSession,
   listAttendanceSessions,
   calculateAttendanceStats,
+  listAttendanceRecords,
+  recordSelfAttendance,
+  type AttendanceRecord,
 } from '../../services/attendanceService'
 import type { AttendanceSession, Disciple, ServiceType } from '../../types'
 import { SERVICE_TYPE_LABELS } from '../../types'
@@ -17,15 +20,27 @@ export default function AttendanceSheet() {
   const { profile } = useAuth()
   const [sessions, setSessions] = useState<AttendanceSession[]>([])
   const [disciples, setDisciples] = useState<Disciple[]>([])
+  const [myRecords, setMyRecords] = useState<AttendanceRecord[]>([])
+  const [recordingSession, setRecordingSession] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [showForm, setShowForm] = useState(false)
 
   const load = async () => {
     if (!profile) return
-    const [s, d] = await Promise.all([listAttendanceSessions(), listDisciples(profile)])
-    setSessions(s)
-    setDisciples(d)
-    setLoading(false)
+    setLoading(true)
+    setLoadError('')
+    try {
+      const [s, d, mine] = await Promise.all([listAttendanceSessions(), listDisciples(profile), listAttendanceRecords(profile.uid)])
+      setSessions(s)
+      setDisciples(d)
+      setMyRecords(mine)
+    } catch (cause) {
+      console.error('Attendance data loading failed:', cause)
+      setLoadError(cause instanceof Error ? cause.message : 'Attendance data could not be loaded. Check your Firebase access and try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -33,7 +48,21 @@ export default function AttendanceSheet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
+  const markMyAttendance = async (session: AttendanceSession) => {
+    if (!profile) return
+    setRecordingSession(session.id)
+    try {
+      await recordSelfAttendance(session, profile)
+      await load()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to record attendance.')
+    } finally {
+      setRecordingSession(null)
+    }
+  }
+
   if (loading) return <PageLoader />
+  if (loadError) return <div className="card space-y-3 p-6"><h1 className="page-title">Attendance could not load</h1><p className="text-sm text-slate-600 dark:text-slate-300">{loadError}</p><button className="btn-primary" onClick={() => { setLoading(true); load().catch((error) => { console.error(error); setLoadError(error instanceof Error ? error.message : 'Unable to load attendance.'); setLoading(false) }) }}>Try again</button></div>
 
   return (
     <div className="space-y-4">
@@ -62,17 +91,22 @@ export default function AttendanceSheet() {
             <EmptyState title="No sessions yet">Take attendance after your next gathering.</EmptyState>
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-              {sessions.slice(0, 10).map((s) => (
-                <li key={s.id} className="flex items-center justify-between py-2 text-sm">
-                  <span>
-                    {SERVICE_TYPE_LABELS[s.serviceType]}
-                    {s.title ? ` — ${s.title}` : ''}
-                  </span>
-                  <span className="text-slate-500">
-                    {s.date} · {s.presentDiscipleIds.length} present
-                  </span>
-                </li>
-              ))}
+              {sessions.slice(0, 10).map((s) => {
+                const recorded = myRecords.some((record) => record.sessionId === s.id)
+                return (
+                  <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{SERVICE_TYPE_LABELS[s.serviceType]}{s.title ? ` — ${s.title}` : ''}</span>
+                      <span className="text-xs text-slate-500">{s.date} · {s.presentDiscipleIds.length} present</span>
+                    </span>
+                    {recorded ? <span className="tag text-emerald-700 dark:text-emerald-400">You attended</span> : (
+                      <button className="btn-secondary !px-2 !py-1" disabled={recordingSession === s.id} onClick={() => markMyAttendance(s)}>
+                        {recordingSession === s.id ? 'Saving…' : 'Mark my attendance'}
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
@@ -98,6 +132,15 @@ export default function AttendanceSheet() {
           )}
         </div>
       </div>
+
+      <section className="card p-4">
+        <h2 className="mb-3 font-display text-xl font-medium">My attendance history</h2>
+        {myRecords.length === 0 ? <p className="text-sm text-slate-500">Your self-recorded attendance will appear here.</p> : (
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {myRecords.slice(0, 15).map((record) => <li key={record.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"><span><span className="block font-medium">{record.sessionTitle}</span><span className="text-xs text-slate-500">{record.date} · {record.method === 'self_recorded' ? 'Self-recorded' : `Recorded by ${record.recordedByName}`}</span></span><span className="tag text-emerald-700 dark:text-emerald-400">Present</span></li>)}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }
@@ -129,12 +172,17 @@ function TakeAttendanceForm({
   const handleSave = async () => {
     if (!profile) return
     setSaving(true)
-    await createAttendanceSession(
-      { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present) },
-      profile,
-    )
-    setSaving(false)
-    onSaved()
+    try {
+      await createAttendanceSession(
+        { serviceType, date, title: title || undefined, presentDiscipleIds: Array.from(present), presentDiscipleNames: Object.fromEntries(disciples.filter((d) => present.has(d.id)).map((d) => [d.id, d.name])) },
+        profile,
+      )
+      onSaved()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to save attendance.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
