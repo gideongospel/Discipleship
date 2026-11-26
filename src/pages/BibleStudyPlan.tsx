@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 type ReadingDay = { day: number; theme: string; old: string; psalm: string; new: string; practice: string }
 
@@ -108,6 +109,7 @@ export default function BibleStudyPlan() {
       <h1 className="page-title mt-3">Bible Study & Canon Guide</h1>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Read Scripture as one unfolding, Christ-centred story. This is a flexible pathway of 30 guided study sessions—not a deadline or a promise to finish the Bible in 30 days or one year. Take the time needed to understand the text, its world, and its connections across the Canon.</p>
     </header>
+    <Link to="/sermon-library" className="flex items-center justify-between gap-3 rounded-xl border border-gold-500/30 bg-gold-500/5 p-4 hover:bg-gold-500/10"><div><p className="font-semibold">Explore the Sermon & Teaching Library</p><p className="mt-1 text-sm text-slate-500">In-depth topics, Scripture references, Hebrew and Greek word studies, teaching outlines and take-home lessons.</p></div><span className="text-sm font-semibold text-gold-700 dark:text-gold-400">Open library →</span></Link>
     <div className="rounded-2xl border border-gold-500/30 bg-gold-500/5 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><p className="text-sm font-semibold">30 guided study sessions · self-paced</p><p className="mt-1 text-xs text-slate-500">A session may take one sitting or several. Progress is saved on this device/browser.</p></div>
