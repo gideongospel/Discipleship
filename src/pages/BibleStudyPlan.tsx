@@ -88,9 +88,13 @@ export default function BibleStudyPlan() {
   const [tab, setTab] = useState<Tab>('Guided Study')
   const [day, setDay] = useState(1)
   const [done, setDone] = useState<number[]>([])
+  const [bookmark, setBookmark] = useState({ passage: '', detail: '', note: '' })
+  const [savedBookmark, setSavedBookmark] = useState({ passage: '', detail: '', note: '' })
   useEffect(() => {
     try { setDone(JSON.parse(localStorage.getItem('discipleship-bible-study-sessions') || localStorage.getItem('discipleship-bible-plan-30') || '[]') as number[]) } catch { setDone([]) }
+    try { const saved = JSON.parse(localStorage.getItem('discipleship-bible-study-bookmark') || 'null'); if (saved) { setBookmark(saved); setSavedBookmark(saved) } } catch { /* bookmark can be entered again */ }
   }, [])
+  const saveBookmark = () => { setSavedBookmark(bookmark); try { localStorage.setItem('discipleship-bible-study-bookmark', JSON.stringify(bookmark)) } catch { /* show current bookmark for this session */ } }
   const toggleDone = (n: number) => {
     const next = done.includes(n) ? done.filter((x) => x !== n) : [...done, n]
     setDone(next)
@@ -111,6 +115,17 @@ export default function BibleStudyPlan() {
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10"><div className="h-full rounded-full bg-gold-500 transition-all" style={{ width: `${done.length / 30 * 100}%` }} /></div>
     </div>
+    <section className="card space-y-3 p-5">
+      <div><h2 className="font-display text-xl">My study bookmark</h2><p className="mt-1 text-sm leading-6 text-slate-500">Record the exact passage and point where you paused. When you return, this reminder helps you continue without losing your place.</p></div>
+      {savedBookmark.passage && <div className="rounded-lg border border-gold-500/30 bg-gold-500/5 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last saved place</p><p className="mt-1 font-semibold">{savedBookmark.passage}{savedBookmark.detail ? ` — ${savedBookmark.detail}` : ''}</p>{savedBookmark.note && <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Your note: {savedBookmark.note}</p>}</div>}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="block text-sm font-medium">Bible passage (book, chapter and verse)<input className="mt-1 w-full rounded-lg border border-slate-200 bg-transparent p-2.5 text-sm dark:border-white/10" value={bookmark.passage} onChange={(e) => setBookmark((b) => ({ ...b, passage: e.target.value }))} placeholder="e.g. Genesis 12:1–9" /></label>
+        <label className="block text-sm font-medium">Where exactly did you stop?<input className="mt-1 w-full rounded-lg border border-slate-200 bg-transparent p-2.5 text-sm dark:border-white/10" value={bookmark.detail} onChange={(e) => setBookmark((b) => ({ ...b, detail: e.target.value }))} placeholder="e.g. Finished verse 5; resume at verse 6" /></label>
+      </div>
+      <label className="block text-sm font-medium">Question or thought to return to<textarea className="mt-1 w-full rounded-lg border border-slate-200 bg-transparent p-2.5 text-sm dark:border-white/10" rows={2} value={bookmark.note} onChange={(e) => setBookmark((b) => ({ ...b, note: e.target.value }))} placeholder="Write a question, observation, or prayer..." /></label>
+      <button className="btn-primary" onClick={saveBookmark}>Save my place</button>
+      <p className="text-xs text-slate-500">Saved in this browser on this device. It does not yet sync between devices or accounts.</p>
+    </section>
     <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
       {tabs.map((t) => <button key={t} onClick={() => setTab(t)} className={`px-3 py-2 text-sm font-semibold ${tab === t ? 'border-b-2 border-gold-500 text-slate-950 dark:text-white' : 'text-slate-500'}`}>{t}</button>)}
     </div>
