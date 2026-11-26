@@ -1,0 +1,113 @@
+import { useEffect, useState } from 'react'
+
+type ReadingDay = { day: number; theme: string; old: string; psalm: string; new: string; practice: string }
+
+const plan: ReadingDay[] = [
+  { day: 1, theme: 'Creation, image and vocation', old: 'Genesis 1–2', psalm: 'Psalm 8', new: 'John 1:1–18', practice: 'Notice how John presents Jesus in relation to creation and life.' },
+  { day: 2, theme: 'The fall and the promised victory', old: 'Genesis 3', psalm: 'Psalm 32', new: 'Romans 5:12–21', practice: 'Trace the contrast between Adam and Christ; read the whole argument.' },
+  { day: 3, theme: 'Promise and blessing to the nations', old: 'Genesis 12:1–9; 15:1–6', psalm: 'Psalm 105:1–11', new: 'Galatians 3:6–18', practice: 'Follow the promise through Abraham to its fulfilment in Christ.' },
+  { day: 4, theme: 'Passover and redemption', old: 'Exodus 12:1–28', psalm: 'Psalm , ' , new: '1 Corinthians 5:6–8; Luke 22:14–20', practice: 'Compare deliverance from Egypt with Jesus’ covenant meal; respect both contexts.' },
+  { day: 5, theme: 'God dwells among His people', old: 'Exodus 25:1–9; 40: amo', psalm: 'Psalm 84', new: 'John 1:14; 2:18–22', practice: 'Observe the tabernacle theme and John’s language of God dwelling among us.' },
+  { day: 6, theme: 'Holy God, merciful mediator', old: 'Leviticus 16', psalm: 'Psalm 103', new: 'Hebrews 9:1–14, 23–28', practice: 'Read Hebrews’ explanation of priesthood and sacrifice in its own flow.' },
+  { day: 7, theme: 'Remember, trust and obey', old: 'Deuteronomy 6:1–9', psalm: 'Psalm 119:9–16', new: 'Mark 12:28–34', practice: 'See how Jesus brings love for God and neighbour together.' },
+  { day: 8, theme: 'The Lord fights for His people', old: 'Joshua 1; 6:1–20', psalm: 'Psalm 44:1–8', new: 'Ephesians 6:10–18', practice: 'Distinguish Israel’s historical warfare from the church’s spiritual armour.' },
+  { day: 9, theme: 'Covenant loyalty and a faithful redeemer', old: 'Ruth 1–4 (divide across session)', psalm: 'Psalm 36:5–10', new: 'Matthew 1:1–6; Luke 1:68–75', practice: 'Notice providence, kinship redemption and the family line of Jesus.' },
+  { day: 10, theme: 'The king and the covenant promise', old: '2 Samuel 7:1–17', psalm: 'Psalm 89:1–4, 19–37', new: 'Luke 1:26–33; Acts 13:22–23', practice: 'Track the promise of David’s enduring throne.' },
+  { day: 11, theme: 'Wisdom begins with reverence', old: 'Proverbs 1:1–7; 8:22–36', psalm: 'Psalm 19', new: 'Colossians 1:15–20; James 1:5', practice: 'Compare wisdom themes carefully; do not assume every poetic personification is a direct prediction.' },
+  { day: 12, theme: 'The suffering righteous one', old: 'Psalm 22', psalm: 'Psalm 22 (read aloud)', new: 'Mark 15:16–39; Hebrews 2:10–18', practice: 'Observe the psalm’s lament and trust, then the Gospel’s use of its language.' },
+  { day: 13, theme: 'The shepherd and the coming king', old: 'Psalm 23; Ezekiel 34:11–24', psalm: 'Psalm 23', new: 'John 10:1–18; 1 Peter 2:24–25', practice: 'Compare God as shepherd, failed shepherds, and Jesus the good shepherd.' },
+  { day: 14, theme: 'A new heart and the Spirit', old: 'Jeremiah 31:31–34; Ezekiel 36:22–28', psalm: 'Psalm 51:10–17', new: 'Luke 22:20; 2 Corinthians 3:3–18', practice: 'Follow covenant renewal, forgiveness and Spirit-enabled transformation.' },
+  { day: 15, theme: 'The Son of Man and the kingdom', old: 'Daniel 7:9–14', psalm: 'Psalm 110', new: 'Mark 14:61–64; Revelation 1:12–18', practice: 'Read Daniel’s vision in context and note how Jesus applies its imagery.' },
+  { day: 16, theme: 'The servant who bears sin', old: 'Isaiah 52:13–53:12', psalm: 'Psalm 40:1–11', new: 'Acts 8:26–ระ; 1 Peter 2:21–25', practice: 'Read the servant song as a whole; observe the New Testament’s explicit interpretation.' },
+  { day: 17, theme: 'Good news and the Spirit’s anointing', old: 'Isaiah 61:1–3', psalm: 'Psalm 146', new: 'Luke 4:16–21; Luke 7:18–23', practice: 'See how Jesus announces the passage’s fulfilment and signs of the kingdom.' },
+  { day: 18, theme: 'The nations worship the Lord', old: 'Isaiah 2:1–4; 11:1–10', psalm: 'Psalm 67', new: 'Acts 15:12–18; Revelation 7:9–12', practice: 'Trace hope for the nations across prophets, apostolic mission and Revelation.' },
+  { day: 19, theme: 'Repentance and the day of the Lord', old: 'Joel 2:12–32', psalm: 'Psalm 130', new: 'Acts 2:14–21; Romans 10:11–13', practice: 'Notice Peter’s quotation and the call to repentance in Acts 2.' },
+  { day: 20, theme: 'The humble king and rejected shepherd', old: 'Zechariah 9:9–10; 11:12–13; 12:10', psalm: 'Psalm 118:19–29', new: 'Matthew 21:1–11; 26:14–16; John 19:ง', practice: 'Compare the Gospel citations and narrative details without flattening their contexts.' },
+  { day: 21, theme: 'The Word made flesh', old: 'Genesis 1:1–5; Isaiah 55:10–11', psalm: 'Psalm 33:4–9', new: 'John 1:1–18', practice: 'Observe creation, Word, light and life motifs.' },
+  { day: 22, theme: 'Jesus fulfils Scripture and forms disciples', old: 'Deuteronomy 8:1–3; Isaiah 6:1–10', psalm: 'Psalm 78:1–8', new: 'Matthew 4:1–11; 13:10–17', practice: 'Pay attention to Jesus’ use of Israel’s Scriptures in temptation and teaching.' },
+  { day: 23, theme: 'The cross, covenant and forgiveness', old: 'Exodus 24:3–8; Jeremiah 31:31–34', psalm: 'Psalm 69:1–21', new: 'Matthew 26:26–29; Hebrews 10:1–18', practice: 'Follow covenant and sacrifice language through the passages.' },
+  { day: 24, theme: 'Resurrection and new creation', old: 'Isaiah 25:6–9; 26:19', psalm: 'Psalm 16', new: '1 Corinthians 15:12–28; Revelation 21:1–5', practice: 'Resurrection is bodily and cosmic; note the victory over death.' },
+  { day: 25, theme: 'The Spirit creates a people', old: 'Ezekiel 37:1–14', psalm: 'Psalm 104:24–35', new: 'Acts 2:1–21; 1 Corinthians 12:12–27', practice: 'Compare prophetic restoration with Pentecost and the body of Christ.' },
+  { day: 26, theme: 'One new people in Christ', old: 'Isaiah 56:1–8', psalm: 'Psalm 117', new: 'Ephesians 2:11–22; Galatians 3:26–29', practice: 'Explore inclusion of the nations without erasing Israel’s story.' },
+  { day: 27, theme: 'Prayer, wisdom and spiritual maturity', old: '1 Kings 3:5–14', psalm: 'Psalm 111', new: 'Ephesians 1:15–23; Colossians 1:9–14', practice: 'Pray Paul’s petitions in their letter context for the church.' },
+  { day: 28, theme: 'Faithful witness and suffering', old: 'Jeremiah 20:7–13', psalm: 'Psalm 2', new: '2 Corinthians 4:1–18; 1 Peter 4:12–19', practice: 'Let biblical lament and gospel hope stand together.' },
+  { day: 29, theme: 'The Lamb, kingdom and worship', old: 'Daniel 7:13–14; Isaiah 25:6–9', psalm: 'Psalm 96', new: 'Revelation 5; 19:1–10', practice: 'Read Revelation’s imagery through its scriptural roots.' },
+  { day: 30, theme: 'The whole story: God with His people', old: 'Genesis 2:8–10; Ezekiel 47:1–12', psalm: 'Psalm 46', new: 'Revelation 21:1–22:5', practice: 'Compare Eden, temple river and the final renewed creation.' },
+]
+
+const bookGuides = [
+  ['Genesis', 'Origins, covenant and family narratives. Track repeated promises, genealogies and “blessing to the nations.” Read each episode within the larger Abraham–Isaac–Jacob–Joseph story.', 'Genesis 1–3 ↔ John 1:1–5; Genesis 12:1–3 ↔ Galatians 3:8–16; Genesis 22 ↔ Romans 8:31–32 (thematic echo).'],
+  ['Exodus', 'Read liberation, covenant, worship and presence as connected movements. Notice repeated “I will” promises and the tension between deliverance and Israel’s formation.', 'Exodus 12 ↔ 1 Corinthians 5:7; Exodus 24 ↔ Hebrews 9:18–22; Exodus 34:6–7 ↔ Romans 9:15–18.'],
+  ['Psalms', 'Identify speaker, situation, genre and movement (lament, praise, thanksgiving, royal or wisdom). Do not turn every line into a direct prediction; first hear the prayer in Israel’s worship.', 'Psalm 2 ↔ Acts 4:25–28; Psalm 22 ↔ Mark 15; Psalm 110 ↔ Hebrews 1 and 7.'],
+  ['Isaiah', 'Watch for judgment and hope, Zion, the servant, new exodus and nations. Read poems and oracles in their historical setting before tracing later fulfilment.', 'Isaiah 7:14 ↔ Matthew 1:22–23; Isaiah 40:3 ↔ Mark 1:2–3; Isaiah 53 ↔ Acts 8:30–35; 1 Peter 2:22–25.'],
+  ['Daniel', 'Distinguish narrative chapters from apocalyptic visions. Attend to symbols, empires, faithful suffering and God’s final kingdom; compare visions rather than decoding symbols in isolation.', 'Daniel 7:13–14 ↔ Mark 14:62; Daniel 12:1–3 ↔ Matthew 24:21–31 (shared apocalyptic imagery).'],
+  ['Matthew', 'Notice fulfilment formulas, kingdom teaching, discipleship and Jesus as Israel’s Messiah. “Fulfilled” often means Scripture reaches its intended pattern, not merely a prediction ticked off.', 'Matthew 2:15 ↔ Hosea 11:1 (Israel’s story recapitulated); Matthew 5–7 ↔ Exodus/Sinai themes; Matthew 21:5 ↔ Zechariah 9:9.'],
+  ['Luke–Acts', 'Read as a two-volume account of Jesus’ work continuing through the Spirit and witness. Track Jerusalem, the nations, prayer, reversal and the use of Israel’s Scriptures.', 'Luke 4:18–21 ↔ Isaiah 61; Acts 2 ↔ Joel 2 and Psalm 16; Acts 15:15–18 ↔ Amos 9:11–12.'],
+  ['John', 'Follow signs, “I am” sayings, believing, life, witness and glory. The prologue introduces themes that recur throughout the Gospel; read signs with their explanatory discourse.', 'John 1 ↔ Genesis 1; John 10 ↔ Ezekiel 34 and Psalm 23; John 19:36–37 ↔ Exodus 12 and Zechariah 12.'],
+  ['Romans', 'Trace Paul’s argument paragraph by paragraph: sin, grace, faith, union with Christ, Spirit, Israel, and transformed communal life. Do not isolate a verse from the argument.', 'Romans 4 ↔ Genesis 15; Romans 9–11 ↔ Hosea/Isaiah; Romans 12 ↔ Leviticus 19 and Jesus’ teaching.'],
+  ['Hebrews', 'Follow the author’s comparisons of Jesus with angels, Moses, priesthood, sacrifice and covenant. Read warnings and encouragements alongside the promised rest and access to God.', 'Hebrews 1 ↔ Psalm 2, 45, 102, 110; Hebrews 3–4 ↔ Psalm 95; Hebrews 8–10 ↔ Jeremiah 31 and Leviticus.'],
+  ['Revelation', 'Read as prophetic-apocalyptic pastoral writing to real churches. Repeated images draw from Exodus, Psalms, Isaiah, Ezekiel and Daniel; interpret symbols by their scriptural echoes and the book’s own context.', 'Revelation 4–5 ↔ Isaiah 6 and Daniel 7; Revelation 12 ↔ Genesis 3; Revelation 21–22 ↔ Genesis 2–3, Ezekiel 47 and Isaiah 65.'],
+]
+
+const connectionGuides = [
+  ['Creation → New Creation', 'Genesis 1–2; Psalm 8', 'John 1:1–5; Colossians 1:15–20; Revelation 21–22', 'The Bible’s story moves from creation and human vocation to renewal in Christ—not escape from creation, but its restoration.'],
+  ['Exodus → Jesus’ redemption', 'Exodus 12–15; Isaiah 40–55', 'Luke 9:28–31; 1 Corinthians 5:7; 1 Peter 1:18–19', 'The New Testament uses exodus and Passover imagery to explain deliverance through Jesus. Read the original Israelite event first.'],
+  ['Davidic king → Messiah', '2 Samuel 7; Psalm 2; Psalm 110', 'Luke 1:32–33; Acts 2:29–36; Hebrews 1', 'The promise of a Davidic ruler develops through royal psalms and is applied to Jesus’ resurrection and exaltation.'],
+  ['Temple and presence → Christ and church', 'Exodus 25:8; 1 Kings 8; Ezekiel 40–48', 'John 1:14; 2:19–21; 1 Corinthians 3:16; Revelation 21:3', 'God’s dwelling theme moves through tabernacle and temple, Jesus’ presence, the Spirit-filled people, and God dwelling with humanity.'],
+  ['New covenant → Spirit-shaped people', 'Jeremiah 31:31–34; Ezekiel 36:25–27', 'Luke 22:20; 2 Corinthians 3; Hebrews 8; Romans 8', 'Forgiveness, transformed hearts and the Spirit are central covenant promises; compare the prophetic promise with apostolic explanation.'],
+  ['Suffering servant → cross and witness', 'Isaiah 52:13–53:12; Psalm 22', 'Mark 15; Acts 8:32–35; 1 Peter 2:21–25', 'The Gospels and apostles connect Jesus’ suffering with Scripture while also showing the servant’s context and the pattern of faithful suffering.'],
+  ['Nations blessed → one family in Christ', 'Genesis 12:1–3; Isaiah 49:6; 56:3–8', 'Acts 10–15; Galatians 3; Ephesians 2', 'God’s promise to bless the nations unfolds through the Messiah and the inclusion of Gentiles; inclusion does not require erasing Israel’s history.'],
+  ['Shepherd → Jesus and pastoral care', 'Psalm 23; Ezekiel 34', 'John 10:1–18; Hebrews 13:20; 1 Peter 2:25; 5:1–4', 'God condemns negligent shepherds and promises to shepherd His people; Jesus is the good shepherd, and church leaders serve under Him.'],
+  ['Wisdom and Word → Christ', 'Proverbs 8; Psalm 33:6; Isaiah 55:10–11', 'John 1:1–18; 1 Corinthians 1:24, 30; Colossians 1:15–20', 'The New Testament identifies Christ as God’s wisdom and Word. Compare carefully; poetic personification and direct identification are not identical claims.'],
+  ['Day of the Lord → judgment and hope', 'Joel 2; Isaiah 13; Zephaniah 1', 'Acts 2; 1 Thessalonians 5; 2 Peter 3; Revelation', 'Prophetic day-of-the-Lord language informs apostolic warnings, repentance, justice and hope for God’s final renewal.'],
+]
+
+const tabs = ['Reading Plan', 'Book & Chapter Tips', 'Across the Canon'] as const
+type Tab = (typeof tabs)[number]
+
+export default function BibleStudyPlan() {
+  const [tab, setTab] = useState<Tab>('Reading Plan')
+  const [day, setDay] = useState(1)
+  const [done, setDone] = useState<number[]>([])
+  useEffect(() => {
+    try { setDone(JSON.parse(localStorage.getItem('discipleship-bible-plan-30') || '[]') as number[]) } catch { setDone([]) }
+  }, [])
+  const toggleDone = (n: number) => {
+    const next = done.includes(n) ? done.filter((x) => x !== n) : [...done, n]
+    setDone(next)
+    try { localStorage.setItem('discipleship-bible-plan-30', JSON.stringify(next)) } catch { /* progress remains in this session */ }
+  }
+  const selected = plan[day - 1]
+
+  return <div className="space-y-6">
+    <header>
+      <p className="eyebrow">Scripture study pathway</p>
+      <h1 className="page-title mt-3">Bible Plan & Canon Guide</h1>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Read Scripture as one unfolding, Christ-centred story. This guided 30-day plan pairs the Old Testament, Psalms and New Testament, with practical reading tips and carefully noted connections across the Canon.</p>
+    </header>
+    <div className="rounded-2xl border border-gold-500/30 bg-gold-500/5 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><p className="text-sm font-semibold">30-day guided plan</p><p className="mt-1 text-xs text-slate-500">Progress saved on this device/browser.</p></div>
+        <p className="text-sm font-semibold tabular-nums">{done.length} / 30 completed</p>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10"><div className="h-full rounded-full bg-gold-500 transition-all" style={{ width: `${done.length / 30 * 100}%` }} /></div>
+    </div>
+    <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
+      {tabs.map((t) => <button key={t} onClick={() => setTab(t)} className={`px-3 py-2 text-sm font-semibold ${tab === t ? 'border-b-2 border-gold-500 text-slate-950 dark:text-white' : 'text-slate-500'}`}>{t}</button>)}
+    </div>
+    {tab === 'Reading Plan' && <div className="grid gap-4 lg:grid-cols-[15rem_1fr]">
+      <div className="card p-3"><p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Choose a day</p><div className="grid grid-cols-5 gap-1.5 sm:grid-cols-6 lg:grid-cols-3">{plan.map((p) => <button key={p.day} onClick={() => setDay(p.day)} aria-label={`Day ${p.day}`} className={`rounded-lg border p-2 text-sm ${day === p.day ? 'border-gold-500 bg-gold-500/10 font-bold' : 'border-slate-200 dark:border-white/10'} ${done.includes(p.day) ? 'text-emerald-600' : ''}`}>{done.includes(p.day) ? '✓ ' : ''}{p.day}</button>)}</div></div>
+      <article className="card space-y-4 p-5">
+        <div><p className="eyebrow">Day {selected.day} · {done.length} days completed</p><h2 className="mt-2 font-display text-2xl">{selected.theme}</h2></div>
+        <div className="grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">Old Testament</p><p className="mt-1 font-semibold">{selected.old}</p></div><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">Psalm / Wisdom</p><p className="mt-1 font-semibold">{selected.psalm}</p></div><div className="rounded-xl bg-slate-50 p-3 dark:bg-white/5"><p className="text-xs font-semibold text-slate-500">New Testament</p><p className="mt-1 font-semibold">{selected.new}</p></div></div>
+        <div><h3 className="text-sm font-semibold">Reading tip</h3><p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{selected.practice}</p></div>
+        <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10"><p className="text-sm font-semibold">A simple study rhythm</p><ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300"><li>Pray for understanding; read the whole assigned section.</li><li>Observe repeated words, structure, speaker and audience.</li><li>Ask what it meant in its original setting before asking how it applies.</li><li>Trace any cross-reference in its own paragraph and book.</li><li>Respond in faith, obedience, prayer or practical love.</li></ol></div>
+        <button className="btn-primary" onClick={() => toggleDone(day)}>{done.includes(day) ? 'Mark day as not completed' : 'Mark reading complete'}</button>
+        <div className="flex justify-between gap-3"><button className="btn-secondary" disabled={day === 1} onClick={() => setDay((d) => d - 1)}>Previous day</button><button className="btn-secondary" disabled={day === 30} onClick={() => setDay((d) => d + 1)}>Next day</button></div>
+      </article>
+    </div>}
+    {tab === 'Book & Chapter Tips' && <div className="space-y-3"><div className="card p-5"><h2 className="font-display text-xl">Before you read any chapter</h2><ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300"><li>Locate the chapter in the book’s argument and historical setting.</li><li>Identify genre: narrative, law, poetry, wisdom, prophecy, Gospel, letter or apocalyptic vision.</li><li>Read the paragraph before and after; chapter and verse divisions were added later.</li><li>Ask who speaks, to whom, why, and what problem or hope is addressed.</li><li>Mark repeated words, contrasts, quotations, covenant language and turning points.</li><li>Distinguish what the text says from what you infer; consult several translations where wording is difficult.</li><li>Use cross-references as invitations to investigate, not as substitutes for context.</li></ul></div><div className="grid gap-3 md:grid-cols-2">{bookGuides.map(([book,tip,refs]) => <article key={book} className="card space-y-2 p-4"><h3 className="font-display text-lg">{book}</h3><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{tip}</p><div className="border-t border-slate-100 pt-2 dark:border-white/10"><p className="text-xs font-semibold text-gold-700 dark:text-gold-400">Canonical pathways</p><p className="mt-1 text-sm">{refs}</p></div></article>)}</div></div>}
+    {tab === 'Across the Canon' && <div className="space-y-3"><div className="card p-5"><h2 className="font-display text-xl">How to trace Scripture with Scripture</h2><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">A connection may be a direct quotation, an explicit fulfilment, an allusion, a shared image, or a broad theological theme. These are not all equally certain. Check quotation markers and the original passage; ask what the author is doing with it. The Canon has unity, but each book retains its own voice, setting and purpose.</p></div>{connectionGuides.map(([theme,first,second,explain]) => <article key={theme} className="card space-y-2 p-4"><h3 className="font-display text-lg">{theme}</h3><p className="text-xs font-semibold text-slate-500">Earlier Scripture</p><p className="text-sm">{first}</p><p className="text-xs font-semibold text-slate-500">Later canonical connections</p><p className="text-sm font-semibold text-gold-700 dark:text-gold-400">{second}</p><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{explain}</p></article>)}</div>}
+    <footer className="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-500 dark:bg-white/5">Study note: These pathways are study aids, not a claim that every pair is a direct prediction or quotation. Read each passage in context, compare reliable translations, and let clearer textual links guide more tentative thematic connections. Scripture quotations are not reproduced in full here; references are provided for reading in your preferred Bible.</footer>
+  </div>
+}
