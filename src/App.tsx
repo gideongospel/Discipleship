@@ -21,6 +21,7 @@ import Settings from './pages/Settings'
 import Events from './pages/Events'
 import OutreachActivities from './pages/OutreachActivities'
 import Resources from './pages/Resources'
+import BibleStudyPlan from './pages/BibleStudyPlan'
 import MeetingLibrary from './pages/MeetingLibrary'
 import NotFound from './pages/NotFound'
 
@@ -45,6 +46,7 @@ export default function App() {
                     <Route path="/evangelism" element={<EvangelismLog />} />
                     <Route path="/outreach-activities" element={<OutreachActivities />} />
                     <Route path="/resources" element={<Resources />} />
+                    <Route path="/bible-study" element={<BibleStudyPlan />} />
                     <Route path="/meeting-library" element={<MeetingLibrary />} />
                     <Route path="/follow-ups" element={<FollowUpTracker />} />
                     <Route path="/attendance" element={<AttendanceSheet />} />
