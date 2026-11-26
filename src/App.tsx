@@ -22,6 +22,7 @@ import Events from './pages/Events'
 import OutreachActivities from './pages/OutreachActivities'
 import Resources from './pages/Resources'
 import BibleStudyPlan from './pages/BibleStudyPlan'
+import SermonLibrary from './pages/SermonLibrary'
 import MeetingLibrary from './pages/MeetingLibrary'
 import NotFound from './pages/NotFound'
 
@@ -47,6 +48,7 @@ export default function App() {
                     <Route path="/outreach-activities" element={<OutreachActivities />} />
                     <Route path="/resources" element={<Resources />} />
                     <Route path="/bible-study" element={<BibleStudyPlan />} />
+                    <Route path="/sermon-library" element={<SermonLibrary />} />
                     <Route path="/meeting-library" element={<MeetingLibrary />} />
                     <Route path="/follow-ups" element={<FollowUpTracker />} />
                     <Route path="/attendance" element={<AttendanceSheet />} />
